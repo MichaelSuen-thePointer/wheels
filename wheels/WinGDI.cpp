@@ -562,5 +562,39 @@ WinPen::~WinPen()
 	}
 }
 
+WinFont::WinFont(const std::wstring& Name, int Height, int Width, int Escapement, int Orientation, int Weight,
+				 bool Italic, bool Underline, bool StrikeOut, bool Antianalise)
+	: _FontInfo()
+	, _Handle(0)
+{
+	_FontInfo.lfHeight = Height;
+	_FontInfo.lfWidth = Width;
+	_FontInfo.lfEscapement = Escapement;
+	_FontInfo.lfOrientation = Orientation;
+	_FontInfo.lfWeight = Weight;
+	_FontInfo.lfItalic = Italic ? TRUE : FALSE;
+	_FontInfo.lfUnderline = Underline ? TRUE : FALSE;
+	_FontInfo.lfStrikeOut = StrikeOut ? TRUE : FALSE;
+	_FontInfo.lfCharSet = DEFAULT_CHARSET;
+	_FontInfo.lfOutPrecision = OUT_DEFAULT_PRECIS;
+	_FontInfo.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+	_FontInfo.lfQuality = Antianalise ? CLEARTYPE_QUALITY : NONANTIALIASED_QUALITY;
+	_FontInfo.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
+	wcsncpy(_FontInfo.lfFaceName, Name.c_str(), LF_FACESIZE - 1);
+
+	_Handle = CreateFontIndirectW(&_FontInfo);
+}
+
+WinFont::WinFont(LOGFONT* FontInfo)
+	: _FontInfo(*FontInfo)
+	, _Handle (CreateFontIndirect(&_FontInfo))
+{}
+
+WinFont::~WinFont()
+{
+	DeleteObject(_Handle);
+}
+
+
 }
 }

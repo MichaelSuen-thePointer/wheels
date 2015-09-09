@@ -200,7 +200,7 @@ protected:
 	LOGFONT _FontInfo;
 	HFONT _Handle;
 public:
-	WinFont(std::wstring Name, int Height, int Width, int Escapement, int Orientation, int Weight, bool Italic, bool UnderLine, bool StrikeOut, bool Antialise);
+	WinFont(const std::wstring& Name, int Height, int Width, int Escapement, int Orientation, int Weight, bool Italic, bool UnderLine, bool StrikeOut, bool Antialise);
 	WinFont(LOGFONT* FontInfo);
 	~WinFont();
 	HFONT GetHandle();

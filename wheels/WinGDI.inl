@@ -261,3 +261,15 @@ HPEN WinPen::GetHandle()
 {
 	return _Handle;
 }
+
+inline
+HFONT WinFont::GetHandle()
+{
+	return _Handle;
+}
+
+inline
+LOGFONT* WinFont::GetInfo()
+{
+	return &_FontInfo;
+}
