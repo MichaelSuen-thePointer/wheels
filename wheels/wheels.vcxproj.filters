@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Windows">
+      <UniqueIdentifier>{bfdd9318-c668-446f-95d0-a928eec9e079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows\Header Files">
+      <UniqueIdentifier>{98ac03a0-c0bc-43cc-b283-1c19b389bdef}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Windows\Source Files">
+      <UniqueIdentifier>{e77438f0-e561-49f7-8edc-49d7ac108ef9}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Windows\Commonctrl">
+      <UniqueIdentifier>{56c8bae9-ee9e-4f14-ba3a-8febf85cac5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows\Commonctrl\Header Files">
+      <UniqueIdentifier>{902dc85b-9332-4f79-b2f6-7a698cc6eac5}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Windows\Commonctrl\Source Files">
+      <UniqueIdentifier>{d12cb27f-0a5a-46b4-a016-a66d4f0c0247}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinClass.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinCommDlg.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinGDI.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinGUI.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinMain.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinButton.h">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinContainers.h">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinText.h">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinRatio.h">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinView.h">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WinClass.cpp">
+      <Filter>Windows\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>Windows\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinGDI.cpp">
+      <Filter>Windows\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WinMain.inl">
+      <Filter>Windows\Header Files</Filter>
+    </None>
+    <None Include="WinClass.inl">
+      <Filter>Windows\Header Files</Filter>
+    </None>
+    <None Include="WinGDI.inl">
+      <Filter>Windows\Header Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
