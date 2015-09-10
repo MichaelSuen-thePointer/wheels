@@ -273,3 +273,9 @@ LOGFONT* WinFont::GetInfo()
 {
 	return &_FontInfo;
 }
+
+inline
+HDC WinDC::GetHandle()
+{
+	return _Handle;
+}

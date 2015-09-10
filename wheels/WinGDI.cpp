@@ -595,6 +595,84 @@ WinFont::~WinFont()
 	DeleteObject(_Handle);
 }
 
+/*WinDC*/
 
+void WinDC::Initialize()
+{
+	_Pen = GetApplication()->  GetDefaultPen();
+	_OldPen = reinterpret_cast<HPEN>(SelectObject(_Handle, _Pen->GetHandle()));
+
+	_Brush = GetApplication()->GetDefaultBrush();
+	_OldBrush = reinterpret_cast<HBRUSH>(SelectObject(_Handle, _Brush->GetHandle()));
+
+	_Font = GetApplication()->GetDefaultFont();
+	_OldFont - reinterpret_cast<HFONT>(SelectObject(_Handle, _Font->GetHandle()));
+
+	SetGraphicsMode(_Handle, GM_ADVANCED);
 }
+
+WinDC::WinDC()
+	: _Handle(0)
+	, _OldPen(nullptr)
+	, _OldBrush(nullptr)
+	, _OldFont(nullptr)
+{}
+
+WinDC::~WinDC()
+{
+	SelectObject(_Handle, _OldFont);
+	SelectObject(_Handle, _OldBrush);
+	SelectObject(_Handle, _OldPen);
+}
+
+void WinDC::SetPen(WinPen::Pointer Pen)
+{
+	SelectObject(_Handle, Pen->GetHandle());
+	_Pen = Pen;
+}
+
+void WinDC::SetBrush(WinBrush::Pointer Brush)
+{
+	SelectObject(_Handle, Brush->GetHandle());
+	_Brush = Brush;
+}
+
+void WinDC::SetFont(WinFont::Pointer Font)
+{
+	SelectObject(_Handle, Font->GetHandle());
+	_Font = Font;
+}
+
+COLORREF WinDC::GetBackgroundColor()
+{
+	return GetBkColor(_Handle);
+}
+
+void WinDC::SetBackgroundColor(COLORREF Color)
+{
+	SetBkColor(_Handle, Color);
+}
+
+COLORREF WinDC::GetTextColor()
+{
+	return ::GetTextColor(_Handle);
+}
+
+void WinDC::SetTextColor(COLORREF Color)
+{
+	::SetTextColor(_Handle, Color);
+}
+
+bool WinDC::GetBackgroundTransparent()
+{
+	return GetBkMode(_Handle) == TRANSPARENT;
+}
+
+void WinDC::SetBackgroundTransparent(bool Value)
+{
+	SetBkMode(_Handle, Value ? TRANSPARENT : OPAQUE);
+}
+}
+
+
 }
