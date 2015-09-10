@@ -238,8 +238,9 @@ public:
 	POINT GetBrushOrigin();
 	void SetBrushOrigin(POINT Point);
 
-	void DrawString(int X, int Y, std::wstring Text);
-	void DrawString(int X, int Y, std::wstring Text, int TabWidth, int TabOriginX);
+	void DrawString(int X, int Y, const std::wstring& Text);
+	void DrawString(int X, int Y, const std::wstring& Text,
+					int TabWidth, int TabOriginX);
 
 	void FillRegion(WinRegion::Pointer Region);
 	void FrameRegion(WinRegion::Pointer Region, int BlockWidth, int BlockHeight);

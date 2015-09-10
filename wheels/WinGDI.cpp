@@ -672,7 +672,274 @@ void WinDC::SetBackgroundTransparent(bool Value)
 {
 	SetBkMode(_Handle, Value ? TRANSPARENT : OPAQUE);
 }
+
+POINT WinDC::GetBrushOrigin()
+{
+	POINT Point;
+	GetBrushOrgEx(_Handle, &Point);
+	return Point;
+}
+
+void WinDC::SetBrushOrigin(POINT Value)
+{
+	SetBrushOrgEx(_Handle, Value.x, Value.y, NULL);
+}
+
+void WinDC::DrawString(int X, int Y, const std::wstring& Text)
+{
+	TextOutW(_Handle, X, Y, Text.c_str(), Text.length());
+}
+
+void WinDC::DrawString(int X, int Y, const std::wstring& Text, int TabWidth, int TabOriginX)
+{
+	TabbedTextOutW(_Handle, X, Y, Text.c_str(), Text.length(), 1, &TabWidth, TabOriginX);
+}
+
+void WinDC::FillRegion(WinRegion::Pointer Region)
+{
+	FillRgn(_Handle, Region->GetHandle(), _Brush->GetHandle());
+}
+
+void WinDC::FrameRegion(WinRegion::Pointer Region, int BlockWidth, int BlockHeight)
+{
+	FrameRgn(_Handle, Region->GetHandle(), _Brush->GetHandle(), BlockWidth, BlockHeight);
+}
+
+void WinDC::MoveTo(int X, int Y)
+{
+	::MoveToEx(_Handle, X, Y, NULL);
+}
+
+void WinDC::LineTo(int X, int Y)
+{
+	::LineTo(_Handle, X, Y);
+}
+
+void WinDC::Rectangle(int Left, int Top, int  Right, int Bottom)
+{
+	::Rectangle(_Handle, Left, Top, Right, Bottom);
+}
+
+void WinDC::Rectangle(RECT Rect)
+{
+	::Rectangle(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+}
+
+void WinDC::FillRect(int Left, int Top, int Right, int Bottom)
+{
+	RECT Rect{Left, Top, Right, Bottom};
+	::FillRect(_Handle, &Rect, _Brush->GetHandle());
+}
+
+void WinDC::FillRect(RECT Rect)
+{
+	::FillRect(_Handle, &Rect, _Brush->GetHandle());
+}
+
+void WinDC::Ellipse(int Left, int Top, int Right, int Bottom)
+{
+	::Ellipse(_Handle, Left, Top, Right, Bottom);
+}
+
+void WinDC::Ellipse(RECT Rect)
+{
+	::Ellipse(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+}
+
+void WinDC::RoundRect(int Left, int Top, int Right, int Bottom, int EllipseWidth, int EllipseHeight)
+{
+	::RoundRect(_Handle, Left, Top, Right, Bottom, EllipseWidth, EllipseHeight);
+}
+
+void WinDC::RoundRect(RECT Rect, int EllipseWidth, int EllipseHeight)
+{
+	::RoundRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom, EllipseWidth, EllipseHeight);
+}
+
+void WinDC::PolyLine(const POINT Points[], int Count)
+{
+	::Polyline(_Handle, Points, Count);
+}
+
+void WinDC::PolyLineTo(const POINT Points[], int Count)
+{
+	::PolylineTo(_Handle, Points, Count);
+}
+
+void WinDC::Polygon(const POINT Points[], int Count)
+{
+	::Polygon(_Handle, Points, Count);
+}
+
+void WinDC::PolyBezier(const POINT Points[], int Count)
+{
+	::PolyBezier(_Handle, Points, Count);
+}
+
+void WinDC::PolyBezierTo(const POINT Points[], int Count)
+{
+	::PolyBezierTo(_Handle, Points, Count);
+}
+
+void WinDC::PolyDraw(const POINT Points[], const BYTE Actions[], int PointCount)
+{
+	::PolyDraw(_Handle, Points, Actions, PointCount);
+}
+
+void WinDC::Arc(RECT Bound, POINT Start, POINT End)
+{
+	::Arc(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+}
+
+void WinDC::Arc(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
+{
+	::Arc(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+}
+
+void WinDC::ArcTo(RECT Bound, POINT Start, POINT End)
+{
+	::ArcTo(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+}
+
+void WinDC::ArcTo(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
+{
+	::ArcTo(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+}
+
+void WinDC::AngleArc(int X, int Y, int Radius, float StartAngle, float SweepAngle)
+{
+	::AngleArc(_Handle, X, Y, Radius, StartAngle, SweepAngle);
+}
+
+void WinDC::AngleArc(int X, int Y, int Radius, double StartAngle, double SweepAngle)
+{
+	::AngleArc(_Handle, X, Y, Radius, static_cast<float>(StartAngle), static_cast<float>(SweepAngle));
+}
+
+void WinDC::Chord(RECT Bound, POINT Start, POINT End)
+{
+	::Chord(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+}
+
+void WinDC::Chord(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
+{
+	::Chord(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+}
+
+void WinDC::Pie(RECT Bound, POINT Start, POINT End)
+{
+	::Pie(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+}
+
+void WinDC::Pie(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
+{
+	::Pie(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+}
+
+void WinDC::GradientTriangle(TRIVERTEX* Vertices, int VerticesCount, GRADIENT_TRIANGLE* Triangles, int TriangleCount)
+{
+	GradientFill(_Handle, Vertices, VerticesCount, Triangles, TriangleCount, GRADIENT_FILL_TRIANGLE);
+}
+
+void WinDC::BeginPath()
+{
+	::BeginPath(_Handle);
+}
+
+void WinDC::EndPath()
+{
+	::EndPath(_Handle);
+}
+
+void WinDC::ClosePath()
+{
+	::CloseFigure(_Handle);
+}
+
+void WinDC::DiscardPath()
+{
+	::AbortPath(_Handle);
+}
+
+void WinDC::DrawPath()
+{
+	::StrokePath(_Handle);
+}
+
+void WinDC::FillPath()
+{
+	::FillPath(_Handle);
+}
+
+void WinDC::DrawAndFillPath()
+{
+	::StrokeAndFillPath(_Handle);
+}
+
+WinRegion::Pointer WinDC::RegionFromPath()
+{
+	return std::make_shared<WinRegion>(::PathToRegion(_Handle));
+}
+
+bool WinDC::PointInClip(POINT Point)
+{
+	return PtVisible(_Handle, Point.x, Point.y) == TRUE;
+}
+
+bool WinDC::RectangleInClip(RECT Rect)
+{
+	return RectVisible(_Handle, &Rect) == TRUE;
+}
+
+void WinDC::ClipPath(int CombineMode)
+{
+	SelectClipPath(_Handle, CombineMode);
+}
+
+void WinDC::ClipRegion(WinRegion::Pointer Region)
+{
+	SelectClipRgn(_Handle, Region->GetHandle());
+}
+
+void WinDC::RemoveClip()
+{
+	SelectClipRgn(_Handle, NULL);
+}
+
+void WinDC::MoveClip(int OffsetX, int OffsetY)
+{
+	OffsetClipRgn(_Handle, OffsetX, OffsetY);
+}
+
+void WinDC::CombineClip(WinRegion::Pointer Region, int CombineMode)
+{
+	ExtSelectClipRgn(_Handle, Region->GetHandle(), CombineMode);
+}
+
+void WinDC::IntersetClipRect(RECT Rect)
+{
+	::IntersectClipRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+}
+
+void WinDC::ExcludeClipRect(RECT Rect)
+{
+	::ExcludeClipRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+}
+
+WinRegion::Pointer WinDC::GetClipRegion()
+{
+	HRGN Handle = CreateRectRgn(0, 0, 1, 1);
+	GetClipRgn(_Handle, Handle);
+	return std::make_shared<WinRegion>(Handle);
+}
+
+RECT WinDC::GetClipBoundRect()
+{
+	RECT Rect;
+	GetClipBox(_Handle, &Rect);
+	return Rect;
 }
 
 
+}
 }
