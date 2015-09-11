@@ -940,6 +940,73 @@ RECT WinDC::GetClipBoundRect()
 	return Rect;
 }
 
+WinTransform WinDC::GetTransform()
+{
+	XFORM Transform;
+	GetWorldTransform(_Handle, &Transform);
+	return Transform;
+}
+
+void WinDC::SetTransform(const WinTransform& Transform)
+{
+	SetWorldTransform(_Handle, Transform.GetHandle());
+}
+
+void WinDC::Copy(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, DWORD DrawROP)
+{
+	HDC SourceHandle = Source ? Source->GetHandle() : 0;
+	BitBlt(_Handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, DrawROP);
+}
+
+void WinDC::Copy(RECT dstRect, WinDC* Source, POINT srcPos, DWORD DrawROP)
+{
+	HDC SourceHandle = Source ? Source->GetHandle() : 0;
+	BitBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top, SourceHandle, srcPos.x, srcPos.y, DrawROP);
+}
+
+void WinDC::Copy(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, int srcW, int srcH, DWORD DrawROP)
+{
+	HDC SourceHandle = Source ? Source->GetHandle() : 0;
+	StretchBlt(_Handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, srcW, srcH, DrawROP);
+}
+
+void WinDC::Copy(RECT dstRect, WinDC* Source, RECT srcRect, DWORD DrawROP)
+{
+	HDC SourceHandle = Source ? Source->GetHandle() : 0;
+	StretchBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
+			   SourceHandle, srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top,
+			   DrawROP);
+}
+
+void WinDC::Copy(POINT UpperLeft, POINT UpperRight, POINT LowerLeft, WinDC* Source, int srcX, int srcY, int srcW, int srcH)
+{
+	POINT Pt[3];
+	Pt[0] = UpperLeft;
+	Pt[1] = UpperRight;
+	Pt[2] = LowerLeft;
+	PlgBlt(_Handle, Pt, Source->GetHandle(), srcX, srcY, srcW, srcH, 0, 0, 0);
+}
+
+void WinDC::Copy(POINT UpperLeft, POINT UpperRight, POINT LowerLeft, WinDC*Source, RECT srcRect)
+{
+	POINT Pt[3];
+	Pt[0] = UpperLeft;
+	Pt[1] = UpperRight;
+	Pt[2] = LowerLeft;
+	PlgBlt(_Handle, Pt, Source->GetHandle(), srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top, 0, 0, 0);
+}
+
+void WinDC::CopyTrans(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, int srcW, int srcH, COLORREF Color)
+{
+	TransparentBlt(_Handle, dstX, dstY, dstW, dstH, Source->GetHandle(), srcX, srcY, srcW, srcH, Color);
+}
+
+void WinDC::CopyTrans(RECT dstRect, WinDC* Source, RECT srcRect, COLORREF Color)
+{
+	TransparentBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
+				   Source->GetHandle(), srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top,
+				   Color);
+}
 
 }
 }
