@@ -1008,5 +1008,85 @@ void WinDC::CopyTrans(RECT dstRect, WinDC* Source, RECT srcRect, COLORREF Color)
 				   Color);
 }
 
+void WinDC::Draw(int dstX, int dstY, WinMetaFile* MetaFile)
+{
+	Draw(dstX, dstY, MetaFile->GetWidth(), MetaFile->GetHeight(), MetaFile);
+}
+
+void WinDC::Draw(POINT Pos, WinMetaFile* MetaFile)
+{
+	Draw(Pos.x, Pos.y, MetaFile->GetWidth(), MetaFile->GetHeight(), MetaFile);
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinMetaFile* MetaFile)
+{
+	RECT Rect{dstX,dstY, dstX + dstW, dstY + dstH};
+	Draw(Rect, MetaFile);
+}
+
+void WinDC::Draw(RECT Rect, WinMetaFile* MetaFile)
+{
+	PlayEnhMetaFile(_Handle, MetaFile->GetHandle(), &Rect);
+}
+
+void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap)
+{
+	int dstW = Bitmap->GetWidth();
+	int dstH = Bitmap->GetHeight();
+	int srcX = 0;
+	int srcY = 0;
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+	}
+	else
+	{
+		int srcW = dstW;
+		int srcH = dstH;
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap)
+{
+	int dstX = Pos.x;
+	int dstY = Pos.y;
+	int dstW = Bitmap->GetWidth();
+	int dstH = Bitmap->GetHeight();
+	int srcX = 0;
+	int srcY = 0;
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+	}
+	else
+	{
+		int srcW = dstW;
+		int srcH = dstH;
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap)
+{
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = Bitmap->GetWidth();
+	int srcH = Bitmap->GetHeight();
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+	}
+	else
+	{
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+
+
 }
 }
