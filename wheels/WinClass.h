@@ -558,7 +558,7 @@ public:
 	LRESULT ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProcedure) override;
 	bool RegisterGlobalHotKey(int ID, bool Alt, bool Ctrl, bool Shift, bool Win, int KeyCode);
 	void UnregisterGlobalHotKey(int ID);
-	WinMenuItem* MenuItemOfHandle(int Handle);
+	WinMenuItem* MenuItemO_Handle(int Handle);
 
 	WinFormBorder GetBorder();
 	void SetBorder(WinFormBorder Value);

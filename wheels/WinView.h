@@ -288,7 +288,7 @@ public:
 	void Arrange();
 	void SnapToGrid();
 	void EnsureItemVisible(int Index, bool AcceptPartialVisible);
-	void Sort(void* Param = nullptr);
+	void Sort(void* Param = nullPointer);
 
 	/*Items*/
 

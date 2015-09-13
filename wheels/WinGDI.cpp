@@ -20,19 +20,6 @@ WinRegion::WinRegion(int Left, int Top, int Right, int Bottom, bool IsRectangle)
 	}
 }
 
-WinRegion::WinRegion(int Left, int Top, int Right, int Bottom, bool IsRectangle)
-	: _Handle(0)
-{
-	if (IsRectangle)
-	{
-		_Handle = CreateRectRgn(Left, Top, Right, Bottom);
-	}
-	else
-	{
-		_Handle = CreateEllipticRgn(Left, Top, Right, Bottom);
-	}
-}
-
 WinRegion::WinRegion(RECT Rect, bool IsRectangle)
 	: _Handle(0)
 {
@@ -520,7 +507,7 @@ WinPen::WinPen(int Style, int EndCap, int Join, int Width, COLORREF Color)
 	Brush.lbColor = Color;
 	Brush.lbStyle = BS_SOLID;
 	Brush.lbHatch = 0;
-	_Handle - ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
+	_Handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
 }
 
 WinPen::WinPen(int Style, int EndCap, int Join, int Hatch, int Width, COLORREF Color)
@@ -580,14 +567,14 @@ WinFont::WinFont(const std::wstring& Name, int Height, int Width, int Escapement
 	_FontInfo.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	_FontInfo.lfQuality = Antianalise ? CLEARTYPE_QUALITY : NONANTIALIASED_QUALITY;
 	_FontInfo.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-	wcsncpy(_FontInfo.lfFaceName, Name.c_str(), LF_FACESIZE - 1);
+	wcsncpy_s(_FontInfo.lfFaceName, Name.c_str(), LF_FACESIZE - 1);
 
 	_Handle = CreateFontIndirectW(&_FontInfo);
 }
 
 WinFont::WinFont(LOGFONT* FontInfo)
 	: _FontInfo(*FontInfo)
-	, _Handle (CreateFontIndirect(&_FontInfo))
+	, _Handle(CreateFontIndirect(&_FontInfo))
 {}
 
 WinFont::~WinFont()
@@ -599,14 +586,14 @@ WinFont::~WinFont()
 
 void WinDC::Initialize()
 {
-	_Pen = GetApplication()->  GetDefaultPen();
+	_Pen = GetApplication()->GetDefaultPen();
 	_OldPen = reinterpret_cast<HPEN>(SelectObject(_Handle, _Pen->GetHandle()));
 
 	_Brush = GetApplication()->GetDefaultBrush();
 	_OldBrush = reinterpret_cast<HBRUSH>(SelectObject(_Handle, _Brush->GetHandle()));
 
 	_Font = GetApplication()->GetDefaultFont();
-	_OldFont - reinterpret_cast<HFONT>(SelectObject(_Handle, _Font->GetHandle()));
+	_OldFont = reinterpret_cast<HFONT>(SelectObject(_Handle, _Font->GetHandle()));
 
 	SetGraphicsMode(_Handle, GM_ADVANCED);
 }
@@ -836,7 +823,7 @@ void WinDC::Pie(int Left, int Top, int Right, int Bottom, int StartX, int StartY
 	::Pie(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
 }
 
-void WinDC::GradientTriangle(TRIVERTEX* Vertices, int VerticesCount, GRADIENT_TRIANGLE* Triangles, int TriangleCount)
+void WinDC::GradientTriangle(TRIVERTEX Vertices[], int VerticesCount, GRADIENT_TRIANGLE Triangles[], int TriangleCount)
 {
 	GradientFill(_Handle, Vertices, VerticesCount, Triangles, TriangleCount, GRADIENT_FILL_TRIANGLE);
 }
@@ -1086,7 +1073,275 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitm
 	}
 }
 
+void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap)
+{
+	int dstX = Rect.left;
+	int dstY = Rect.top;
+	int dstW = Rect.right - Rect.left;
+	int dstH = Rect.bottom - Rect.top;
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = Bitmap->GetWidth();
+	int srcH = Bitmap->GetWidth();
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+	}
+	else
+	{
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
 
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY)
+{
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+	}
+	else
+	{
+		int srcW = dstW;
+		int srcH = dstH;
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos)
+{
+	int dstX = Rect.left;
+	int dstY = Rect.top;
+	int dstW = Rect.right - Rect.left;
+	int dstH = Rect.bottom - Rect.top;
+	int srcX = Pos.x;
+	int srcY = Pos.y;
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+	}
+	else
+	{
+		int srcW = dstW;
+		int srcH = dstH;
+		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH)
+{
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+	}
+	else
+	{
+		BLENDFUNCTION Blend;
+		Blend.BlendOp = AC_SRC_OVER;
+		Blend.BlendFlags = 0;
+		Blend.SourceConstantAlpha = 255;
+		Blend.AlphaFormat = AC_SRC_ALPHA;
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect)
+{
+	int dstX = dstRect.left;
+	int dstY = dstRect.top;
+	int dstW = dstRect.right - dstRect.left;
+	int dstH = dstRect.bottom - dstRect.top;
+	int srcX = srcRect.left;
+	int srcY = srcRect.top;
+	int srcW = srcRect.right - srcRect.left;
+	int srcH = srcRect.bottom - srcRect.top;
+	if (!Bitmap->IsAlphaChannelBuilt())
+	{
+		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+	}
+	else
+	{
+		BLENDFUNCTION Blend;
+		Blend.BlendOp = AC_SRC_OVER;
+		Blend.BlendFlags = 0;
+		Blend.SourceConstantAlpha = 255;
+		Blend.AlphaFormat = AC_SRC_ALPHA;
+		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	}
+}
+
+/*------------------------------------------------------------------------------*/
+
+void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap, byte Alpha)
+{
+	int dstW = Bitmap->GetWidth();
+	int dstH = Bitmap->GetHeight();
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = dstW;
+	int srcH = dstH;
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap, byte Alpha)
+{
+	int dstX = Pos.x;
+	int dstY = Pos.y;
+	int dstW = Bitmap->GetWidth();
+	int dstH = Bitmap->GetHeight();
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = dstW;
+	int srcH = dstH;
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, byte Alpha)
+{
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = Bitmap->GetWidth();
+	int srcH = Bitmap->GetHeight();
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, byte Alpha)
+{
+	int dstX = Rect.left;
+	int dstY = Rect.top;
+	int dstW = Rect.right - Rect.left;
+	int dstH = Rect.bottom - Rect.top;
+	int srcX = 0;
+	int srcY = 0;
+	int srcW = Bitmap->GetWidth();
+	int srcH = Bitmap->GetHeight();
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, byte Alpha)
+{
+	int srcW = dstW;
+	int srcH = dstH;
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos, byte Alpha)
+{
+	int dstX = Rect.left;
+	int dstY = Rect.top;
+	int dstW = Rect.right - Rect.left;
+	int dstH = Rect.bottom - Rect.top;
+	int srcX = Pos.x;
+	int srcY = Pos.y;
+	int srcW = dstW;
+	int srcH = dstH;
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH, byte Alpha)
+{
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect, byte Alpha)
+{
+	int dstX = dstRect.left;
+	int dstY = dstRect.top;
+	int dstW = dstRect.right - dstRect.left;
+	int dstH = dstRect.bottom - dstRect.top;
+	int srcX = srcRect.left;
+	int srcY = srcRect.top;
+	int srcW = srcRect.right - srcRect.left;
+	int srcH = srcRect.bottom - srcRect.top;
+
+	BLENDFUNCTION Blend;
+	Blend.BlendOp = AC_SRC_OVER;
+	Blend.BlendFlags = 0;
+	Blend.SourceConstantAlpha = Alpha;
+	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
+	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+}
+
+WinControlDC::WinControlDC(HWND Handle)
+	: WinDC()
+	, _ControlHandle(Handle)
+{
+	_Handle = GetDC(_ControlHandle);
+	Initialize();
+}
+
+WinControlDC::~WinControlDC()
+{
+	ReleaseDC(_ControlHandle, _Handle);
+}
+
+WinProxyDC::WinProxyDC()
+	: WinDC()
+{}
+
+WinProxyDC::~WinProxyDC()
+{}
+
+void WinProxyDC::Initialize(HDC Handle)
+{
+	_Handle = Handle;
+	WinDC::Initialize();
+}
+
+WinImageDC::WinImageDC()
+	: WinDC()
+{
+	_Handle = CreateCompatibleDC(NULL);
+	Initialize();
+}
+
+WinImageDC::~WinImageDC()
+{
+	DeleteDC(_Handle);
+}
 
 }
 }

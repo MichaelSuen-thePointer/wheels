@@ -137,7 +137,7 @@ void WinMetaFileBuilder::Draw(HENHMETAFILE Handle)
 inline
 void WinMetaFileBuilder::Destroy()
 {
-	DeleteEnhMetaFile(CloseEnhMetaFile(_DC->GetHandle));
+	DeleteEnhMetaFile(CloseEnhMetaFile(_DC->GetHandle()));
 }
 
 inline

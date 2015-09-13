@@ -175,7 +175,7 @@ bool AcceleratorItem::Bind(IAcceleratorReceiver* Receiver)
 }
 
 AcceleratorManager::AcceleratorManager()
-	: _Handle(CreateAcceleratorTableW(_AcceleratorList.begin()._Ptr, _AcceleratorList.size()))
+	: _Handle(CreateAcceleratorTableW(&_AcceleratorList[0], _AcceleratorList.size()))
 {}
 
 AcceleratorManager::~AcceleratorManager()
@@ -232,7 +232,7 @@ AcceleratorItem* AcceleratorManager::GetAcceleratorItem(AcceleratorKey SysKeys, 
 
 	DestroyAcceleratorTable(_Handle);
 	_AcceleratorList.push_back(Info);
-	_Handle = CreateAcceleratorTableW(_AcceleratorList.begin()._Ptr, _AcceleratorList.size());
+	_Handle = CreateAcceleratorTableW(&_AcceleratorList[0], _AcceleratorList.size());
 	return NewItem.get();
 }
 
@@ -1546,7 +1546,7 @@ LRESULT WinForm::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bo
 			{
 			case 0:				/*菜单*/
 			{
-				WinMenuItem* Item = MenuItemOfHandle(LOWORD(wParam));
+				WinMenuItem* Item = MenuItemO_Handle(LOWORD(wParam));
 				if (Item)
 				{
 					Item->OnClick(Item);
@@ -1570,7 +1570,7 @@ LRESULT WinForm::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bo
 	case WM_MENURBUTTONUP:	/*菜单右键消息*/
 	{
 		int Handle = GetMenuItemID((HMENU)lParam, wParam);
-		WinMenuItem* Item = MenuItemOfHandle(Handle);
+		WinMenuItem* Item = MenuItemO_Handle(Handle);
 		if (Item)
 		{
 			Item->OnRightClick(Item);
@@ -1611,7 +1611,7 @@ void WinForm::UnregisterGlobalHotKey(int ID)
 	}
 }
 
-WinMenuItem* WinForm::MenuItemOfHandle(int Handle)
+WinMenuItem* WinForm::MenuItemO_Handle(int Handle)
 {
 	auto Place = _MenuItemMap.find(Handle);
 	if (Place == _MenuItemMap.end())
@@ -2062,7 +2062,7 @@ WinMenuItem* WinPopupMenu::Popup(int X, int Y, bool KeepPrevMenu /* = false*/)
 							   Y,
 							   _MessageDispatcher->GetHandle(),
 							   NULL);
-	WinMenuItem* Item = _MessageDispatcher->MenuItemOfHandle(ID);
+	WinMenuItem* Item = _MessageDispatcher->MenuItemO_Handle(ID);
 	if (Item)
 	{
 		Item->OnClick(Item);

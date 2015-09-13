@@ -260,7 +260,7 @@ public:
 	void Polygon(const POINT Points[], int Count);
 	void PolyBezier(const POINT Points[], int Count);
 	void PolyBezierTo(const POINT Points[], int Count);
-	void PolyDraw(const POINT Points[], const BYTE* Actions, int PointCount);
+	void PolyDraw(const POINT Points[], const BYTE Actions[], int PointCount);
 	void Arc(RECT Bound, POINT Start, POINT End);
 	void Arc(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EnxY);
 	void ArcTo(RECT Bound, POINT Start, POINT End);

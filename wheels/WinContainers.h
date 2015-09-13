@@ -98,8 +98,8 @@ public:
 	bool GetVerticalTab();
 	void SetVertivalTab(bool Value);
 
-	WinTabPage AddPage(const std::wstring& Text, WinContainer* Container = nullptr);
-	WinTabPage AddPage(int Index, const std::wstring& Text, WinContainer* Container = nullptr);
+	WinTabPage AddPage(const std::wstring& Text, WinContainer* Container = nullPointer);
+	WinTabPage AddPage(int Index, const std::wstring& Text, WinContainer* Container = nullPointer);
 	void DeletePage(int Index);
 	WinTabPage GetPage(int Index);
 	int GetPageCount();
