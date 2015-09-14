@@ -87,6 +87,9 @@
     <ClCompile Include="WinGDI.cpp">
       <Filter>Windows\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinCommDlg.cpp">
+      <Filter>Windows\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WinMain.inl">
@@ -96,6 +99,9 @@
       <Filter>Windows\Header Files</Filter>
     </None>
     <None Include="WinGDI.inl">
+      <Filter>Windows\Header Files</Filter>
+    </None>
+    <None Include="WinCommDlg.inl">
       <Filter>Windows\Header Files</Filter>
     </None>
   </ItemGroup>

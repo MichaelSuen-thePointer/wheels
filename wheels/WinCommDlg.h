@@ -71,7 +71,7 @@ public:
 	std::vector<std::wstring> FileNames;
 
 	bool GetMultiSelection();
-	void SetMultiSeletcion(bool Value);
+	void SetMultiSelection(bool Value);
 
 	bool GetAddToRecent();
 	void SetAddToRecent(bool Value);
@@ -95,10 +95,10 @@ public:
 	void SetInitDir(const std::wstring& Value);
 
 	std::wstring GetFilter();
-	void Setfilter(const std::wstring& Value);
+	void SetFilter(const std::wstring& Value);
 
 	std::wstring GetDefaultExt();
-	void SetDefaultExt(std::wstring Value);
+	void SetDefaultExt(const std::wstring& Value);
 };
 
 class WinOpenFileDialog: public WinFileDialog
@@ -198,6 +198,7 @@ public:
 
 extern WinCommonDialogService* GetCommdlgService();
 
+#include"WinCommDlg.inl"
 }
 }
 #endif // !WINCOMMDLG_H

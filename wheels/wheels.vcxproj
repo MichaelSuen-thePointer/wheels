@@ -162,11 +162,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WinClass.cpp" />
+    <ClCompile Include="WinCommDlg.cpp" />
     <ClCompile Include="WinGDI.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WinClass.inl" />
+    <None Include="WinCommDlg.inl" />
     <None Include="WinGDI.inl" />
     <None Include="WinMain.inl" />
   </ItemGroup>
