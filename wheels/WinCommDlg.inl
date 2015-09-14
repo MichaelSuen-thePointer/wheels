@@ -98,3 +98,88 @@ void WinFileDialog::SetDefaultExt(const std::wstring& Value)
 {
 	_DefaultExt = Value;
 }
+inline
+bool WinOpenFileDialog::GetHideReadonly()
+{
+	return _HideReadonly;
+}
+inline
+void WinOpenFileDialog::SetHideReadonly(bool Value)
+{
+	_HideReadonly = Value;
+}
+inline
+bool WinOpenFileDialog::GetReadonly()
+{
+	return _Readonly;
+}
+inline
+void WinOpenFileDialog::SetReadonly(bool Value)
+{
+	_Readonly = Value;
+}
+inline
+bool WinOpenFileDialog::GetFileMustExist()
+{
+	return _FileMustExist;
+}
+inline
+void WinOpenFileDialog::SetFileMustExist(bool Value)
+{
+	_FileMustExist = Value;
+}
+inline
+bool WinOpenFileDialog::IsOpening()
+{
+	return _Opening;
+}
+inline
+bool WinSaveFileDialog::GetOverridePrompt()
+{
+	return _OverridePrompt;
+}
+inline
+void WinSaveFileDialog::SetOverridePrompt(bool Value)
+{
+	_OverridePrompt = Value;
+}
+inline
+bool WinSaveFileDialog::IsOpening()
+{
+	return _Opening;
+}
+inline
+bool WinFontDialog::GetTrueTypeOnly()
+{
+	return _TrueTypeOnly;
+}
+inline
+void WinFontDialog::SetTrueTypeOnly(bool Value)
+{
+	_TrueTypeOnly = Value;
+}
+inline
+bool WinFontDialog::GetExtended()
+{
+	return _Extended;
+}
+inline
+void WinFontDialog::SetExtended(bool Value)
+{
+	_Extended = Value;
+}
+inline
+bool WinFontDialog::GetFontMustExist()
+{
+	return _FontMustExist;
+}
+inline
+void WinFontDialog::SetFontMustExist(bool Value)
+{
+	_FontMustExist = Value;
+}
+inline
+bool WinFontDialog::IsOpening()
+{
+	return _Opening;
+}

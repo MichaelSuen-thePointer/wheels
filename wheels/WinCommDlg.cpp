@@ -1,4 +1,4 @@
-#include "WinCommDlg.h"
+#include "WinMain.h"
 
 namespace pl
 {
@@ -167,6 +167,128 @@ WinFileDialog::WinFileDialog()
 
 WinFileDialog::~WinFileDialog()
 {}
+
+void WinOpenFileDialog::FillResult(OPENFILENAME& Struct)
+{
+	WinFileDialog::FillResult(Struct);
+	_Readonly = (Struct.Flags & OFN_READONLY) != 0;
+}
+
+WinOpenFileDialog::WinOpenFileDialog()
+	: _HideReadonly(false)
+	, _Readonly(false)
+	, _FileMustExist(true)
+{
+	_Title = L"´ò¿ª";
+}
+
+WinOpenFileDialog::~WinOpenFileDialog()
+{}
+
+bool WinOpenFileDialog::Execute(WinForm* Form)
+{
+	if (_Opening)
+	{
+		return false;
+	}
+	DWORD Flags = 0;
+	if (_HideReadonly) Flags = OFN_HIDEREADONLY;
+	if (_Readonly) Flags |= OFN_READONLY;
+	if (_FileMustExist) Flags |= OFN_FILEMUSTEXIST;
+	Initialize();
+
+	OPENFILENAME Struct;
+	FillStruct(Struct, Flags);
+	Struct.hwndOwner = Form->GetHandle();
+	bool Result = GetOpenFileNameW(&Struct) != 0;
+	GetCommdlgService()->UnregisterFileDialog(_Handle);
+
+	Finalize();
+	return Result;
+}
+
+WinSaveFileDialog::WinSaveFileDialog()
+	: _OverridePrompt(true)
+{
+	_Title = L"±£´æ";
+}
+
+WinSaveFileDialog::~WinSaveFileDialog()
+{}
+
+bool WinSaveFileDialog::Execute(WinForm* Form)
+{
+	if (_Opening)
+	{
+		return false;
+	}
+	DWORD Flags = 0;
+	if (_OverridePrompt) Flags |= OFN_OVERWRITEPROMPT;
+	Initialize();
+
+	OPENFILENAME Struct;
+	FillStruct(Struct, Flags);
+	Struct.hwndOwner = Form->GetHandle();
+	bool Result = GetSaveFileNameW(&Struct) != 0;
+	GetCommdlgService()->UnregisterFileDialog(_Handle);
+	Finalize();
+	return Result;
+}
+
+WinFontDialog::WinFontDialog()
+	: _Handle(0)
+	, _FontInfo()
+	, _Opening(false)
+	, _TrueTypeOnly(false)
+	, _Extended(true)
+	, _FontMustExist(true)
+	, Font()
+	, Color()
+{
+	Font = GetApplication()->GetDefaultFont();
+	_FontInfo = *Font->GetHandle();
+	Color = RGB(0, 0, 0);
+}
+
+WinFontDialog::~WinFontDialog()
+{}
+
+bool WinFontDialog::Execute(WinForm* Form)
+{
+	if (_Opening)
+	{
+		return false;
+	}
+	CHOOSEFONT cf;
+	cf.lStructSize = sizeof(cf);
+	cf.hwndOwner = Form->GetHandle();
+	cf.hDC = NULL;
+	cf.lpLogFont = &_FontInfo;
+	cf.iPointSize = 0;
+	cf.Flags = CF_ENABLEHOOK | CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS;
+	cf.rgbColors = Color;
+	cf.lCustData = reinterpret_cast<LPARAM>(this);
+	cf.lpfnHook = Service_CFHookProc;
+	cf.lpTemplateName = NULL;
+	cf.hInstance = NULL;
+	cf.lpszStyle = NULL;
+	cf.nFontType = 0;
+	cf.nSizeMin = 0;
+	cf.nSizeMax = 0;
+
+	if (_TrueTypeOnly) cf.Flags |= CF_TTONLY;
+	if (_Extended) cf.Flags |= CF_EFFECTS;
+	if (_FontMustExist) cf.Flags |= CF_FORCEFONTEXIST;
+
+	bool Result = ChooseFontW(&cf) != 0;
+	if (Result)
+	{
+		Color = cf.rgbColors;
+		Font = std::make_shared<WinFont>(&_FontInfo);
+	}
+	GetCommdlgService()->UnregisterFontDialog(_Handle);
+	return Result;
+}
 
 
 

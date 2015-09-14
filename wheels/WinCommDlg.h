@@ -146,8 +146,8 @@ class WinFontDialog: public Object
 	friend class WinCommonDialogService;
 	friend UINT_PTR CALLBACK Service_CFHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
 protected:
-	LOGFONT _FontInfo;
 	HWND _Handle;
+	LOGFONT _FontInfo;
 	bool _Opening;
 
 	bool _TrueTypeOnly;
@@ -161,7 +161,7 @@ public:
 	COLORREF Color;
 
 	bool GetTrueTypeOnly();
-	void SetTrurTypeOnly(bool Value);
+	void SetTrueTypeOnly(bool Value);
 
 	bool GetExtended();
 	void SetExtended(bool Value);
@@ -194,6 +194,9 @@ public:
 	void UnregisterColorDialog(HWND Handle);
 	void RegisterFontDialog(HWND Handle, WinFontDialog* Dialog);
 	void UnregisterFontDialog(HWND Handle);
+	void RegisterFileDialog(HWND Handle, WinFontDialog* Dialog);
+	void UnregisterFileDialog(HWND Handle);
+
 };
 
 extern WinCommonDialogService* GetCommdlgService();
