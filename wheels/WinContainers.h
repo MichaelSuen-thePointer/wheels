@@ -28,11 +28,14 @@ protected:
 public:
 	WinTabPage();
 	WinTabPage(const WinTabPage& Page);
+	WinTabPage(WinTabPage&& Page);
+	WinTabPage& operator=(const WinTabPage& Page);
+	WinTabPage& operator=(WinTabPage&& Page);
 	operator bool();
 	operator WinContainer*();
 
 	std::wstring GetText();
-	void SetText(const std::wstring& Value);
+	void SetText(std::wstring& Value);
 
 	int GetImageIndex();
 	void SetImageIndex(int Value);

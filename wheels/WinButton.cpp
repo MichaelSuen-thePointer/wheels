@@ -168,8 +168,29 @@ void WinRadio::SetChecked(bool Value)
 	WinCustomChecked::SetChecked(Value);
 }
 
+WinSplitButton::WinSplitButton(WinContainer* Parent)
+	: WinCustomButton(Parent, BS_SPLITBUTTON | BS_CENTER | BS_VCENTER)
+{}
 
-
+LRESULT WinSplitButton::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProc)
+{
+	LRESULT Result = 0;
+	switch (Message)
+	{
+	case WM_NOTIFY_DISPATCHED:
+	{
+		NMHDR* hdr = reinterpret_cast<NMHDR*>(lParam);
+		if (hdr->code == BCN_DROPDOWN)
+		{
+			NMBCDROPDOWN* param = reinterpret_cast<NMBCDROPDOWN*>(lParam);
+			OnDropDown(this, param->rcButton);
+		}
+		Result = WinCustomButton::ProcessMessage(Message, wParam, lParam, CallDefaultProc);
+		break;
+	}
+	}
+	return Result;
+}
 
 }
 }

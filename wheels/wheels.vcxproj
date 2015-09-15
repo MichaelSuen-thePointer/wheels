@@ -164,6 +164,7 @@
     <ClCompile Include="WinButton.cpp" />
     <ClCompile Include="WinClass.cpp" />
     <ClCompile Include="WinCommDlg.cpp" />
+    <ClCompile Include="WinContainers.cpp" />
     <ClCompile Include="WinGDI.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>

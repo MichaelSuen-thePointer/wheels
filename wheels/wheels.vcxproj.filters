@@ -93,6 +93,9 @@
     <ClCompile Include="WinButton.cpp">
       <Filter>Windows\Commonctrl\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinContainers.cpp">
+      <Filter>Windows\Commonctrl\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WinMain.inl">
