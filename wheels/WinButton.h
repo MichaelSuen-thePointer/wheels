@@ -65,7 +65,7 @@ public:
 class WinRadio: public WinCustomChecked
 {
 protected:
-	int GroupNumber;
+	int _GroupNumber;
 public:
 	WinRadio(WinContainer* Parent);
 
@@ -86,6 +86,9 @@ public:
 
 	LRESULT ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProcedure) override;
 };
+
+#include "WinButton.inl"
+
 } //namespace windows
 } //namespace pl
 

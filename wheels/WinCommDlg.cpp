@@ -401,5 +401,6 @@ void SetCommdlgService(WinCommonDialogService* Service)
 {
 	_CommonDialogService = Service;
 }
+
 }
 }

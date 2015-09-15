@@ -90,6 +90,9 @@
     <ClCompile Include="WinCommDlg.cpp">
       <Filter>Windows\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinButton.cpp">
+      <Filter>Windows\Commonctrl\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WinMain.inl">
@@ -103,6 +106,9 @@
     </None>
     <None Include="WinCommDlg.inl">
       <Filter>Windows\Header Files</Filter>
+    </None>
+    <None Include="WinButton.inl">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
     </None>
   </ItemGroup>
 </Project>

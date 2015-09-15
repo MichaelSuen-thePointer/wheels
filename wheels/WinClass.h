@@ -493,6 +493,9 @@ public:
 
 	int GetClientHeight();
 	void SetClientHeight(int Value);
+
+	WinControlList::iterator begin();
+	WinControlList::iterator end();
 };
 
 class WinTimer;

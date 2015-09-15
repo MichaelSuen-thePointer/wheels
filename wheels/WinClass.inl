@@ -1,3 +1,4 @@
+#include "WinClass.h"
 extern AcceleratorManager* _AcceleratorManager;
 
 inline
@@ -410,6 +411,18 @@ inline
 void WinContainer::SetClientHeight(int Value)
 {
 	SetHeight(Value + GetHeight() - GetClientHeight());
+}
+
+inline
+WinControlList::iterator pl::windows::WinContainer::begin()
+{
+	return _Controls.begin();
+}
+
+inline
+WinControlList::iterator pl::windows::WinContainer::end()
+{
+	return _Controls.end();
 }
 
 inline

@@ -161,12 +161,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="WinButton.cpp" />
     <ClCompile Include="WinClass.cpp" />
     <ClCompile Include="WinCommDlg.cpp" />
     <ClCompile Include="WinGDI.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="WinButton.inl" />
     <None Include="WinClass.inl" />
     <None Include="WinCommDlg.inl" />
     <None Include="WinGDI.inl" />
