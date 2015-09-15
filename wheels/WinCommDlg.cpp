@@ -246,7 +246,7 @@ WinFontDialog::WinFontDialog()
 	, Color()
 {
 	Font = GetApplication()->GetDefaultFont();
-	_FontInfo = *Font->GetHandle();
+	_FontInfo = *Font->GetInfo();
 	Color = RGB(0, 0, 0);
 }
 
@@ -290,7 +290,116 @@ bool WinFontDialog::Execute(WinForm* Form)
 	return Result;
 }
 
+WinCommonDialogService::WinCommonDialogService()
+	: _MessageColorOnOK(RegisterWindowMessageW(COLOROKSTRINGW))
+{}
 
+void WinCommonDialogService::RegisterColorDialog(HWND Handle, WinColorDialog* Dialog)
+{
+	_ColorDialogs.insert({Handle, Dialog});
+	Dialog->_Handle = Handle;
+}
 
+void WinCommonDialogService::UnregisterColorDialog(HWND Handle)
+{
+	_ColorDialogs.erase(Handle);
+}
+
+void WinCommonDialogService::RegisterFileDialog(HWND Handle, WinFileDialog* Dialog)
+{
+	_FileDialogs.insert({Handle, Dialog});
+	Dialog->_Handle = Handle;
+}
+
+void WinCommonDialogService::UnregisterFileDialog(HWND Handle)
+{
+	_FileDialogs.erase(Handle);
+}
+
+void WinCommonDialogService::RegisterFontDialog(HWND Handle, WinFontDialog* Dialog)
+{
+	_FontDialogs.insert({Handle, Dialog});
+	Dialog->_Handle = Handle;
+}
+
+void WinCommonDialogService::UnregisterFontDialog(HWND Handle)
+{
+	_FontDialogs.erase(Handle);
+}
+
+WinCommonDialogService* _CommonDialogService = nullptr;
+
+UINT_PTR CALLBACK Service_CCHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uiMsg == WM_INITDIALOG)
+	{
+		CHOOSECOLOR* pcc = reinterpret_cast<CHOOSECOLOR*>(lParam);
+		WinColorDialog* Dialog = reinterpret_cast<WinColorDialog*>(pcc->lCustData);
+		_CommonDialogService->RegisterColorDialog(hDlg, Dialog);
+
+		Dialog->OnInit(Dialog);
+	}
+	else if (uiMsg == _CommonDialogService->_MessageColorOnOK)
+	{
+		CHOOSECOLOR* pcc = reinterpret_cast<CHOOSECOLOR*>(lParam);
+		bool Cancel = false;
+		WinColorDialog* Dialog = _CommonDialogService->_ColorDialogs[hDlg];
+		Dialog->Color = pcc->rgbResult;
+		Dialog->OnOK(Dialog, Cancel);
+		return Cancel ? 1 : 0;
+	}
+	return 0;
+}
+
+UINT_PTR CALLBACK Service_PFNHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uiMsg == WM_INITDIALOG)
+	{
+		OPENFILENAME* pofn = reinterpret_cast<OPENFILENAME*>(lParam);
+		WinFileDialog* Dialog = reinterpret_cast<WinFileDialog*>(pofn->lCustData);
+
+		_CommonDialogService->RegisterFileDialog(hDlg, Dialog);
+
+		Dialog->OnInit(Dialog);
+	}
+	else if (uiMsg == WM_NOTIFY)
+	{
+		OFNOTIFY* pofn = reinterpret_cast<OFNOTIFY*>(lParam);
+		if (pofn->hdr.code == CDN_FILEOK)
+		{
+			bool Cancel = false;
+			WinFileDialog* Dialog = reinterpret_cast<WinFileDialog*>(pofn->lpOFN->lCustData);
+			Dialog->FillResult(*pofn->lpOFN);
+			Dialog->OnOK(Dialog, Cancel);
+			if (Cancel)
+			{
+				SetWindowLongW(hDlg, DWL_MSGRESULT, 1);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+	
+UINT_PTR CALLBACK Service_CFHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uiMsg == WM_INITDIALOG)
+	{
+		CHOOSEFONT* pcf = reinterpret_cast<CHOOSEFONT*>(lParam);
+		WinFontDialog* Dialog = reinterpret_cast<WinFontDialog*>(pcf->lCustData);
+		_CommonDialogService->RegisterFontDialog(hDlg, Dialog);
+	}
+	return 0;
+}
+
+WinCommonDialogService* GetCommdlgService()
+{
+	return _CommonDialogService;
+}
+
+void SetCommdlgService(WinCommonDialogService* Service)
+{
+	_CommonDialogService = Service;
+}
 }
 }

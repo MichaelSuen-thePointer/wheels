@@ -14,7 +14,7 @@ namespace windows
 
 class WinColorDialog: public Object
 {
-	friend class WinCommDialogService;
+	friend class WinCommonDialogService;
 protected:
 	HWND _Handle;
 	bool _Opening;
@@ -194,7 +194,7 @@ public:
 	void UnregisterColorDialog(HWND Handle);
 	void RegisterFontDialog(HWND Handle, WinFontDialog* Dialog);
 	void UnregisterFontDialog(HWND Handle);
-	void RegisterFileDialog(HWND Handle, WinFontDialog* Dialog);
+	void RegisterFileDialog(HWND Handle, WinFileDialog* Dialog);
 	void UnregisterFileDialog(HWND Handle);
 
 };
