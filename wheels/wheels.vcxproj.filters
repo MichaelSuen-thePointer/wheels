@@ -113,5 +113,8 @@
     <None Include="WinButton.inl">
       <Filter>Windows\Commonctrl\Header Files</Filter>
     </None>
+    <None Include="WinContainers.inl">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

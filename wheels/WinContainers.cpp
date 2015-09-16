@@ -73,6 +73,11 @@ WinTabPage::operator bool()
 	return _Handle != 0;
 }
 
+WinTabPage::operator WinContainer*()
+{
+	return _Container;
+}
+
 std::wstring WinTabPage::GetText()
 {
 	wchar_t Buffer[TABPAGE_TEXT_BUFFER_SIZE] = {0};
@@ -107,6 +112,160 @@ void WinTabPage::SetImageIndex(int Value)
 	Item.iImage = Value;
 	TabCtrl_SetItem(_Handle, _Index, &Item);
 }
+
+void* WinTabPage::GetCustomData()
+{
+	TCITEMW Item;
+	FillTabPageItem(&Item, TCIF_PARAM);
+	TabCtrl_GetItem(_Handle, _Index, &Item);
+	return reinterpret_cast<void*>(Item.lParam);
+}
+
+void WinTabPage::SetCustomData(void* Value)
+{
+	TCITEMW Item;
+	FillTabPageItem(&Item, TCIF_PARAM);
+	Item.lParam = reinterpret_cast<LPARAM>(Value);
+	TabCtrl_SetItem(_Handle, _Index, &Item);
+}
+
+bool WinTabPage::GetHighlighted()
+{
+	TCITEMW Item;
+	FillTabPageItem(&Item, TCIF_STATE);
+	Item.dwStateMask = TCIS_HIGHLIGHTED;
+	TabCtrl_GetItem(_Handle, _Index, &Item);
+	return Item.dwState != 0;
+}
+
+void WinTabPage::SetHighlighted(bool Value)
+{
+	TabCtrl_HighlightItem(_Handle, _Index, (Value ? TRUE : FALSE));
+}
+
+DWORD WinTab::InternalGetExStyle()
+{
+	return TabCtrl_GetExtendedStyle(_Handle);
+}
+
+void WinTab::InternalSetExStyle(DWORD ExStyle)
+{
+	TabCtrl_SetExtendedStyle(_Handle, ExStyle);
+}
+
+void WinTab::GetClientArea(RECT* Rect)
+{
+	Rect->left = 0;
+	Rect->top = 0;
+	Rect->right = GetWidth();
+	Rect->bottom = GetHeight();
+	TabCtrl_AdjustRect(_Handle, FALSE, Rect);
+}
+
+void WinTab::ArrangeTabContainers()
+{
+	RECT Rect;
+	GetClientArea(&Rect);
+	for (auto& Elem : _TabContainers)
+	{
+		Elem->Move(Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top);
+	}
+}
+
+void WinTab::ResetTopTabContainer()
+{
+	int Index = TabCtrl_GetCurSel(_Handle);
+	if (Index != -1)
+	{
+		for (auto& Elem : _TabContainers)
+		{
+			Elem->SetVisible(false);
+		}
+		_TabContainers[Index]->SetVisible(true);
+	}
+}
+
+WinTab::WinTab(WinContainer* Parent)
+	: WinContainer()
+	, _ImageList(nullptr)
+	, _TabContainers()
+{
+	_CreateWindow(WS_EX_CONTROLPARENT,
+				  WS_TABSTOP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_CHILD | TCS_FOCUSONBUTTONDOWN,
+				  WC_TABCONTROL,
+				  Parent);
+	TabCtrl_SetUnicodeFormat(_Handle, TRUE);
+}
+
+WinTab::~WinTab()
+{}
+
+LRESULT WinTab::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProc)
+{
+	LRESULT Result = 0;
+	switch (Message)
+	{
+	case WM_NOTIFY_DISPATCHED:
+		switch (reinterpret_cast<NMHDR*>(lParam)->code)
+		{
+		case NM_CLICK:
+			OnClick(this);
+			break;
+		case NM_DBLCLK:
+			OnDblClick(this);
+			break;
+		case NM_RCLICK:
+			OnRightClick(this);
+			break;
+		case NM_RDBLCLK:
+			OnRightDblClick(this);
+			break;
+		case TCN_SELCHANGE:
+			ResetTopTabContainer();
+			OnSelChanged(this);
+			break;
+		}
+		Result = WinControl::ProcessMessage(Message, wParam, lParam, CallDefaultProc);
+		break;
+	case WM_SIZE:
+		ArrangeTabContainers();
+		Result = WinControl::ProcessMessage(Message, wParam, lParam, CallDefaultProc);
+		break;
+	default:
+		Result = WinControl::ProcessMessage(Message, wParam, lParam, CallDefaultProc);
+	}
+	return Result;
+}
+
+WinTabPage WinTab::InsertPage(int Index, std::wstring& Text, WinContainer* Container)
+{
+	TCITEMW Item;
+	FillTabPageItem(&Item, TCIF_TEXT);
+	Item.pszText = &Text[0];
+	Index = TabCtrl_InsertItem(_Handle, Index, &Item);
+	if (Index == -1)
+	{
+		return WinTabPage();
+	}
+	else
+	{
+		RECT Rect;
+		GetClientArea(&Rect);
+		if (Container)
+		{
+			Container->SetParent(this);
+		}
+		else
+		{
+			Container = new WinStatic(this);
+		}
+		_TabContainers.insert(_TabContainers.begin() + Index, Container);
+		ResetTopTabContainer();
+		ArrangeTabContainers();
+		return WinTabPage(_Handle, Index, Container);
+	}
+}
+
 
 
 }

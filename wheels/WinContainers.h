@@ -50,10 +50,13 @@ public:
 
 	Placement* GetPlacement();
 	void ApplyPlacement(placement::Base::Pointer Placement);
-	int GetControlcout();
+	int GetControlCount();
 	WinControl* GetControl(int Index);
 	int GetClientWidth();
 	int GetClientHeight();
+
+	WinControlList::iterator begin();
+	WinControlList::iterator end();
 };
 
 class WinTab: public WinContainer
@@ -99,10 +102,10 @@ public:
 	void SetTabAtLeftTop(bool Value);
 
 	bool GetVerticalTab();
-	void SetVertivalTab(bool Value);
+	void SetVerticalTab(bool Value);
 
-	WinTabPage AddPage(const std::wstring& Text, WinContainer* Container = nullPointer);
-	WinTabPage AddPage(int Index, const std::wstring& Text, WinContainer* Container = nullPointer);
+	WinTabPage AddPage(const std::wstring& Text, WinContainer* Container = nullptr);
+	WinTabPage InsertPage(int Index, std::wstring& Text, WinContainer* Container = nullptr);
 	void DeletePage(int Index);
 	WinTabPage GetPage(int Index);
 	int GetPageCount();
@@ -110,6 +113,8 @@ public:
 	void SetSelectedPage(WinTabPage Page);
 	int GetRowCount();
 };
+
+#include "WinContainers.inl"
 
 }
 }

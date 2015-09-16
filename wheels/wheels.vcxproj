@@ -172,6 +172,7 @@
     <None Include="WinButton.inl" />
     <None Include="WinClass.inl" />
     <None Include="WinCommDlg.inl" />
+    <None Include="WinContainers.inl" />
     <None Include="WinGDI.inl" />
     <None Include="WinMain.inl" />
   </ItemGroup>
