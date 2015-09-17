@@ -141,7 +141,19 @@ void WinTab::SetVerticalTab(bool Value)
 }
 
 inline
-WinTabPage WinTab::AddPage(const std::wstring& Text, WinContainer* Container)
+WinTabPage WinTab::AddPage(std::wstring& Text, WinContainer* Container)
 {
 	return InsertPage(GetPageCount(), Text, Container);
+}
+
+inline
+int WinTab::GetPageCount()
+{
+	assert(TabCtrl_GetItemCount(_Handle) == _TabContainers.size());
+	return TabCtrl_GetItemCount(_Handle);
+}
+
+int WinTab::GetRowCount()
+{
+	return TabCtrl_GetRowCount(_Handle);
 }

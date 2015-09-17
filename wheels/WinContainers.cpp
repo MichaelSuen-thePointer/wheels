@@ -266,6 +266,43 @@ WinTabPage WinTab::InsertPage(int Index, std::wstring& Text, WinContainer* Conta
 	}
 }
 
+void WinTab::DeletePage(int Index)
+{
+	assert(Index >= 0 && Index < GetPageCount());
+	if (TabCtrl_DeleteItem(_Handle, Index) == TRUE)
+	{
+		delete _TabContainers[Index];
+		_TabContainers.erase(_TabContainers.begin() + Index);
+		ArrangeTabContainers();
+	}
+}
+
+WinTabPage WinTab::GetPage(int Index)
+{
+	assert(Index >= 0 && Index < GetPageCount());
+	return WinTabPage(_Handle, Index, _TabContainers[Index]);
+}
+
+WinTabPage WinTab::GetSelectedPage()
+{
+	int Index = TabCtrl_GetCurSel(_Handle);
+	if (Index == -1)
+	{
+		return WinTabPage();
+	}
+	return WinTabPage(_Handle, Index, _TabContainers[Index]);
+}
+
+void WinTab::SetSelectedPage(WinTabPage Page)
+{
+	if (Page)
+	{
+		TabCtrl_SetCurSel(_Handle, Page._Index);
+		ResetTopTabContainer();
+		OnSelChanged(this);
+	}
+}
+
 
 
 }

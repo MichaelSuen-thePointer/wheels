@@ -4,6 +4,7 @@
 
 #include "WinClass.h"
 #include "WinText.h"
+#include <cassert>
 namespace pl
 {
 namespace windows
@@ -104,7 +105,7 @@ public:
 	bool GetVerticalTab();
 	void SetVerticalTab(bool Value);
 
-	WinTabPage AddPage(const std::wstring& Text, WinContainer* Container = nullptr);
+	WinTabPage AddPage(std::wstring& Text, WinContainer* Container = nullptr);
 	WinTabPage InsertPage(int Index, std::wstring& Text, WinContainer* Container = nullptr);
 	void DeletePage(int Index);
 	WinTabPage GetPage(int Index);
