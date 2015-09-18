@@ -167,6 +167,7 @@
     <ClCompile Include="WinContainers.cpp" />
     <ClCompile Include="WinGDI.cpp" />
     <ClCompile Include="WinMain.cpp" />
+    <ClCompile Include="WinRatio.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WinButton.inl" />
@@ -175,6 +176,7 @@
     <None Include="WinContainers.inl" />
     <None Include="WinGDI.inl" />
     <None Include="WinMain.inl" />
+    <None Include="WinRatio.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

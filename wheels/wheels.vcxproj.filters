@@ -96,6 +96,9 @@
     <ClCompile Include="WinContainers.cpp">
       <Filter>Windows\Commonctrl\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinRatio.cpp">
+      <Filter>Windows\Commonctrl\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WinMain.inl">
@@ -114,6 +117,9 @@
       <Filter>Windows\Commonctrl\Header Files</Filter>
     </None>
     <None Include="WinContainers.inl">
+      <Filter>Windows\Commonctrl\Header Files</Filter>
+    </None>
+    <None Include="WinRatio.inl">
       <Filter>Windows\Commonctrl\Header Files</Filter>
     </None>
   </ItemGroup>

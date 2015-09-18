@@ -43,6 +43,9 @@ public:
 	int GetLineSize();
 	void SetLineSize(int Value);
 
+	int GetPageSize();
+	void SetPageSize(int Value);
+
 	int GetPosition();
 	void SetPosition(int Value);
 };
@@ -156,6 +159,9 @@ public:
 	int GetMarqueeInterval();
 	void SetMarqueeInterval(int Value);
 };
+
+#include "WinRatio.inl"
+
 }
 }
 #endif // !WINRATIO_H
