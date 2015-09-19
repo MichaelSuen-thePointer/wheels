@@ -81,8 +81,8 @@ public:
 	bool GetEnableSelection();
 	void SetEnableSelection(bool Value);
 
-	bool SetAutoTicks();
-	void GetAutoTicks(bool Value);
+	bool GetAutoTicks();
+	void SetAutoTicks(bool Value);
 
 	int GetMax();
 	void SetMax(int Value);
@@ -121,7 +121,7 @@ protected:
 	bool _MarqueeRunning;
 	int _MarqueeInterval;
 
-	void InternalSetMarque();
+	void InternalSetMarquee();
 public:
 	WinProgress(WinContainer* Parent, bool Horizontal);
 	~WinProgress();
