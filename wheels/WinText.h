@@ -12,7 +12,7 @@ namespace windows
 
 enum class EditCharDisplay
 {
-	None, LoerCase, UpperCase, DigitOnly, Password
+	None, LowerCase, UpperCase, DigitOnly, Password
 };
 
 class WinEdit: public WinControl
@@ -100,6 +100,7 @@ enum class StatusEdge
 
 class WinStatic: public WinContainer
 {
+public:
 	WinStatic(WinContainer* Parent);
 	~WinStatic();
 
@@ -303,6 +304,8 @@ public:
 	int GetItemCount();
 	void DeleteItem(int Index);
 };
+
+#include "WinText.inl"
 
 }
 }
