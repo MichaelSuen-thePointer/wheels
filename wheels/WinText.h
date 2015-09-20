@@ -107,7 +107,7 @@ public:
 	LRESULT ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProcedure);
 
 	NotifyEvent OnClick;
-	NotifyEvent ODblClick;
+	NotifyEvent OnDblClick;
 
 	WinHAlign GetTextAlign();
 	void SetTextAlign(WinHAlign Align);
@@ -164,7 +164,7 @@ public:
 
 	int FindStringPrefix(const std::wstring& String);
 	int FindString(const std::wstring& String);
-	int SelectPrefix(const std::wstring& String);
+	void SelectPrefix(const std::wstring& String);
 };
 
 class WinComboBox: public WinControl
@@ -214,7 +214,7 @@ public:
 	bool IsOpened();
 	void AddString(const std::wstring& String);
 	void InsertString(int Index, const std::wstring& String);
-	void DeleteStirng(int Index);
+	void DeleteString(int Index);
 	int GetCount();
 
 	std::wstring GetString(int index);
