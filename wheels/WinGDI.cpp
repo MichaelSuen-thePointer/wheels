@@ -35,11 +35,13 @@ WinRegion::WinRegion(RECT Rect, bool IsRectangle)
 
 WinRegion::WinRegion(int Left, int Top, int Right, int Bottom, int EllipseWidth, int EllipseHeight)
 	: _Handle(CreateRoundRectRgn(Left, Top, Right, Bottom, EllipseWidth, EllipseHeight))
-{}
+{
+}
 
 WinRegion::WinRegion(POINT Points[], int Count, bool Alternate)
 	: _Handle(CreatePolygonRgn(Points, Count, Alternate ? ALTERNATE : WINDING))
-{}
+{
+}
 
 WinRegion::WinRegion(WinRegion::Pointer Region)
 	: _Handle(CreateRectRgn(0, 0, 1, 1))
@@ -55,7 +57,8 @@ WinRegion::WinRegion(WinRegion::Pointer Region1, WinRegion::Pointer Region2, int
 
 WinRegion::WinRegion(HRGN RegionHandle)
 	: _Handle(RegionHandle)
-{}
+{
+}
 
 WinRegion::~WinRegion()
 {
@@ -64,11 +67,13 @@ WinRegion::~WinRegion()
 
 WinTransform::WinTransform(XFORM Transform)
 	: _Transform(Transform)
-{}
+{
+}
 
 WinTransform::WinTransform(const WinTransform& Transform)
 	: _Transform(Transform._Transform)
-{}
+{
+}
 
 void WinMetaFileBuilder::Create(int Width, int Height)
 {
@@ -164,6 +169,15 @@ WinMetaFile::WinMetaFile(WinMetaFileBuilder* Builder)
 WinMetaFile::~WinMetaFile()
 {
 	DeleteEnhMetaFile(_Handle);
+}
+
+int WinBitmap::GetLineBytes(int Width, BitmapBits BB)
+{
+	int Bits = GetBitsFromBB(BB);
+	int LineBits = Width*Bits;
+	int AlignBits = sizeof(WORD) * 8;
+	LineBits += (AlignBits - LineBits%AlignBits) % AlignBits;
+	return LineBits / 8;
 }
 
 void WinBitmap::FillBitmapInfoHeader(int Width, int Height, BitmapBits Bits, BITMAPINFOHEADER* Header)
@@ -466,12 +480,14 @@ void WinBitmap::Generate(std::function<BYTE(COLORREF)> Function)
 WinBrush::WinBrush(COLORREF Color)
 	: _DIBMemory(nullptr)
 	, _Handle(CreateSolidBrush(Color))
-{}
+{
+}
 
 WinBrush::WinBrush(int Hatch, COLORREF Color)
 	: _DIBMemory(nullptr)
 	, _Handle(CreateHatchBrush(Hatch, Color))
-{}
+{
+}
 
 WinBrush::WinBrush(WinBitmap::Pointer DIB)
 {
@@ -497,7 +513,8 @@ WinBrush::~WinBrush()
 WinPen::WinPen(int Style, int Width, COLORREF Color)
 	: _Handle(CreatePen(Style, Width, Color))
 	, _DIBMemory(nullptr)
-{}
+{
+}
 
 WinPen::WinPen(int Style, int EndCap, int Join, int Width, COLORREF Color)
 	: _Handle(0)
@@ -575,7 +592,8 @@ WinFont::WinFont(const std::wstring& Name, int Height, int Width, int Escapement
 WinFont::WinFont(LOGFONT* FontInfo)
 	: _FontInfo(*FontInfo)
 	, _Handle(CreateFontIndirect(&_FontInfo))
-{}
+{
+}
 
 WinFont::~WinFont()
 {
@@ -603,7 +621,8 @@ WinDC::WinDC()
 	, _OldPen(nullptr)
 	, _OldBrush(nullptr)
 	, _OldFont(nullptr)
-{}
+{
+}
 
 WinDC::~WinDC()
 {
@@ -1320,10 +1339,12 @@ WinControlDC::~WinControlDC()
 
 WinProxyDC::WinProxyDC()
 	: WinDC()
-{}
+{
+}
 
 WinProxyDC::~WinProxyDC()
-{}
+{
+}
 
 void WinProxyDC::Initialize(HDC Handle)
 {

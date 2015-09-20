@@ -225,7 +225,7 @@ public:
 	~WinDC();
 
 	HDC GetHandle();
-	
+
 	void SetPen(WinPen::Pointer Pen);
 	void SetBrush(WinBrush::Pointer Brush);
 	void SetFont(WinFont::Pointer Font);
