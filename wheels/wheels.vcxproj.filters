@@ -102,6 +102,9 @@
     <ClCompile Include="WinText.cpp">
       <Filter>Windows\Commonctrl\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinView.cpp">
+      <Filter>Windows\Commonctrl\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="WinMain.inl">
