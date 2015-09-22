@@ -33,7 +33,7 @@ public:
 	void SetImageIndex(int Value);
 
 	std::wstring GetSubItem(int Index);
-	void SetSubItem(int Index, std::wstring Value);
+	void SetSubItem(int Index, std::wstring& Value);
 
 	void GetTiledSubItem(std::vector<int>& Columns);
 	void SetTiledSubItem(std::vector<int>& Conumns);
@@ -288,7 +288,7 @@ public:
 	void Arrange();
 	void SnapToGrid();
 	void EnsureItemVisible(int Index, bool AcceptPartialVisible);
-	void Sort(void* Param = nullPointer);
+	void Sort(void* Param = nullptr);
 
 	/*Items*/
 
@@ -480,6 +480,9 @@ public:
 	WinTreeViewItem GetDropHighlighted();
 	void Clear();
 };
+
+#include "WinView.inl"
+
 }
 }
 

@@ -45,20 +45,117 @@ WinListViewItem& WinListViewItem::operator=(const WinListViewItem& Item)
 	return *this;
 }
 
-WinListViewItem::operator bool()
+int WinListViewItem::GetImageIndex()
 {
-	return _Handle != 0;
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_IMAGE);
+	ListView_GetItem(_Handle, &Item);
+	return Item.iImage;
 }
 
-int WinListViewItem::GetIndex()
+void WinListViewItem::SetImageIndex(int Value)
 {
-	return _Index;
+	LVITEM Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_IMAGE);
+	Item.iImage = Value;
+	ListView_SetItem(_Handle, &Item);
 }
 
+std::wstring WinListViewItem::GetSubItem(int Index)
+{
+	wchar_t Buffer[LISTVIEW_TEXT_BUFFER_SIZE] = {0};
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, Index + 1, LVIF_TEXT);
+	Item.pszText = Buffer;
+	Item.cchTextMax = sizeof(Buffer) / sizeof(*Buffer);
+	ListView_GetItem(_Handle, &Item);
+	return Buffer;
+}
 
+void WinListViewItem::SetSubItem(int Index, std::wstring& Value)
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, Index + 1, LVIF_TEXT);
+	Item.pszText = &Value[0];
+	ListView_SetItem(_Handle, &Item);
+}
 
+void WinListViewItem::GetTiledSubItem(std::vector<int>& Columns)
+{
+	UINT Buffer[20] = {0};
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_COLUMNS);
+	Item.puColumns = Buffer;
+	ListView_GetItem(_Handle, &Item);
+	Columns.clear();
+	for (UINT i = 0; i < Item.cColumns; i++)
+	{
+		Columns.push_back(Buffer[i] - 1);
+	}
+}
 
+void WinListViewItem::SetTiledSubItem(std::vector<int>& Columns)
+{
+	UINT Buffer[20] = {0};
+	size_t Count = 0;
+	for (; Count < Columns.size() && Count < 20; Count++)
+	{
+		Buffer[Count] = Columns[Count] + 1;
+	}
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_COLUMNS);
+	Item.cColumns = Count;
+	Item.puColumns = Buffer;
+	ListView_SetItem(_Handle, &Item);
+}
 
+int WinListViewItem::GetIndent()
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_INDENT);
+	ListView_GetItem(_Handle, &Item);
+	return Item.iIndent;
+}
+
+void WinListViewItem::SetIndent(int Value)
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_INDENT);
+	Item.iIndent = Value;
+	ListView_SetItem(_Handle, &Item);
+}
+
+void* WinListViewItem::GetCustomData()
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_PARAM);
+	ListView_GetItem(_Handle, &Item);
+	return reinterpret_cast<void*>(Item.lParam);
+}
+
+void WinListViewItem::SetCustomData(void* Data)
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_PARAM);
+	Item.lParam = reinterpret_cast<LPARAM>(Data);
+	ListView_SetItem(_Handle, &Item);
+}
+
+void WinListViewItem::EnterGroup(int GroupID)
+{
+	LVITEMW Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_GROUPID);
+	Item.iGroupId = GroupID;
+	ListView_SetItem(_Handle, &Item);
+}
+
+int WinListViewItem::GetOwnerGroupID()
+{
+	LVITEM Item;
+	FillListViewItem(&Item, _Index, 0, LVIF_GROUPID);
+	ListView_GetItem(_Handle, &Item);
+	return Item.iGroupId;
+}
 
 }
 }
