@@ -27,7 +27,7 @@ public:
 	int GetIndex();
 
 	std::wstring GetText();
-	void SetText(const std::wstring& Value);
+	void SetText(std::wstring& Value);
 
 	int GetImageIndex();
 	void SetImageIndex(int Value);
@@ -83,7 +83,7 @@ public:
 	int GetIndex();
 
 	std::wstring GetText();
-	void SetText(const std::wstring& Value);
+	void SetText(std::wstring& Value);
 
 	int GetSubItemIndex();
 	void SetSubItemIndex(int Value);
@@ -120,7 +120,7 @@ protected:
 
 	std::wstring GetListViewGroupText(UINT Mask, LPWSTR LVGROUP::* Item, UINT LVGROUP::* Count);
 	std::wstring GetListViewGroupText(UINT Mask, LPWSTR LVGROUP::* Item, int LVGROUP::* Count);
-	std::wstring SetListViewGroupText(UINT Mask, LPWSTR LVGROUP::* Item, const std::wstring& Text);
+	void SetListViewGroupText(UINT Mask, LPWSTR LVGROUP::* Item, std::wstring& Text);
 public:
 	WinListViewGroup();
 	WinListViewGroup(const WinListViewGroup& Item);
