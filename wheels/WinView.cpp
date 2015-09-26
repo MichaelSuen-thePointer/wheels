@@ -937,7 +937,7 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
     switch (Message)
     {
     case WM_NOTIFY_DISPATCHED:
-        switch (((NMHDR*)lParam)->code)
+        switch ((reinterpret_cast<NMHDR*>(lParam))->code)
         {
         case NM_CLICK:
         {
@@ -961,20 +961,20 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         }
         case TVN_BEGINDRAG:
         {
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             OnBeginDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
             break;
         }
         case TVN_BEGINRDRAG:
         {
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             OnBeginRightDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
             break;
         }
         case TVN_BEGINLABELEDIT:
         {
             CallDefaultProcedure = false;
-            NMTVDISPINFO* Param = (NMTVDISPINFO*)lParam;
+            NMTVDISPINFOW* Param = reinterpret_cast<NMTVDISPINFOW*>(lParam);
             bool Accept = true;
             OnBeginLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
             return Accept ? FALSE : TRUE;
@@ -983,7 +983,7 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         case TVN_ENDLABELEDIT:
         {
             CallDefaultProcedure = false;
-            NMTVDISPINFO* Param = (NMTVDISPINFO*)lParam;
+            NMTVDISPINFOW* Param = reinterpret_cast<NMTVDISPINFOW*>(lParam);
             bool Accept = true;
             OnEndLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
             return Accept ? TRUE : FALSE;
@@ -991,20 +991,20 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         }
         case TVN_ITEMEXPANDING:
         {
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             OnItemExpanding(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
             break;
         }
         case TVN_ITEMEXPANDED:
         {
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             OnItemExpanded(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
             break;
         }
         case TVN_SELCHANGING:
         {
             CallDefaultProcedure = false;
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             bool Accept = true;
             OnItemSelecting(this, WinTreeViewItem(_Handle, Param->itemNew.hItem), Accept);
             return Accept ? FALSE : TRUE;
@@ -1012,7 +1012,7 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         }
         case TVN_SELCHANGED:
         {
-            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             OnItemSelected(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
             break;
         }
@@ -1033,8 +1033,6 @@ WinTreeViewItem WinTreeView::AddRootItem(std::wstring& Text, int ImageIndex, int
     Item.hInsertAfter = TVI_ROOT;
     return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
 }
-
-
 
 }
 }
