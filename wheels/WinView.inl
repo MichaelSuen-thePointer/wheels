@@ -1,3 +1,4 @@
+#include "WinView.h"
 inline
 WinListViewItem::operator bool()
 {
@@ -442,8 +443,413 @@ int WinListView::GetItemCount()
     return ListView_GetItemCount(_Handle);
 }
 inline
-void WinListView::AddItem(const std::wstring& Text, int ImageIndex)
+void WinListView::AddItem(std::wstring& Text, int ImageIndex)
 {
     InsertItem(GetItemCount(), Text, ImageIndex);
 }
-
+inline
+void WinListView::DeleteItem(int Index)
+{
+    ListView_DeleteItem(_Handle, Index);
+}
+inline
+void WinListView::Clear()
+{
+    ListView_DeleteAllItems(_Handle);
+}
+inline
+int WinListView::GetSelectedItemCount()
+{
+    return ListView_GetSelectedCount(_Handle);
+}
+inline
+int WinListView::GetSelectionItemMark()
+{
+    return ListView_GetSelectionMark(_Handle);
+}
+inline
+void WinListView::SetSelectionItemMark(int Value)
+{
+    ListView_SetSelectionMark(_Handle, Value);
+}
+inline
+int WinListView::GetHotItemIndex()
+{
+    return ListView_GetHotItem(_Handle);
+}
+inline
+void WinListView::SetHotItemIndex(int Value)
+{
+    ListView_SetHotItem(_Handle, Value);
+}
+inline
+int WinListView::GetColumnCount()
+{
+    return _ColumnCount;
+}
+inline
+void WinListView::AddColumn(std::wstring& Text, int SubItemIndex)
+{
+    InsertColumn(GetColumnCount(), Text, SubItemIndex);
+}
+inline
+int WinListView::GetSelectedColumnIndex()
+{
+    return ListView_GetSelectedColumn(_Handle);
+}
+inline
+void WinListView::SetSelectedColumnIndex(int Value)
+{
+    ListView_SetSelectedColumn(_Handle, Value);
+}
+inline
+void WinListView::EnableGrouping(bool Value)
+{
+    ListView_EnableGroupView(_Handle, (Value ? TRUE : FALSE));
+}
+inline
+int WinListView::GetGroupCount()
+{
+    return ListView_GetGroupCount(_Handle);
+}
+inline
+int WinListView::AddGroup(std::wstring& Text)
+{
+    return InsertGroup(-1, Text);
+}
+inline
+void WinListView::DeleteGroupByID(int ID)
+{
+    ListView_RemoveGroup(_Handle, ID);
+}
+inline
+WinTreeViewItem::operator bool()
+{
+    return _Item != 0;
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetParent()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetParent(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetFirstChild()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetChild(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetPrevious()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetPrevSibling(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetNext()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetNextSibling(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetNextVisible()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetNextVisible(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetPrevVisible()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetPrevVisible(_Handle, _Item));
+}
+inline
+WinTreeViewItem WinTreeViewItem::GetNextSelected()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetNextSelected(_Handle, _Item));
+}
+inline
+HTREEITEM WinTreeViewItem::GetHandle()
+{
+    return _Item;
+}
+void WinTreeViewItem::SetDropTarget()
+{
+    TreeView_SelectDropTarget(_Handle, _Item);
+}
+inline
+void WinTreeViewItem::SetFirstVisible()
+{
+    TreeView_SelectSetFirstVisible(_Handle, _Item);
+}
+inline
+bool WinTreeViewItem::GetBoldState()
+{
+    return TreeView_GetItemState(_Handle, _Item, TVIS_BOLD) != 0;
+}
+inline
+void WinTreeViewItem::SetBoldState(bool Value)
+{
+    TreeView_SetItemState(_Handle, _Item, (Value ? TVIS_BOLD : 0), TVIS_BOLD);
+}
+inline
+bool WinTreeViewItem::GetCutState()
+{
+    return TreeView_GetItemState(_Handle, _Item, TVIS_CUT) != 0;
+}
+inline
+void WinTreeViewItem::SetCutState(bool Value)
+{
+    TreeView_SetItemState(_Handle, _Item, (Value ? TVIS_CUT : 0), TVIS_CUT);
+}
+inline
+bool WinTreeViewItem::GetDropHilitedState()
+{
+    return TreeView_GetItemState(_Handle, _Item, TVIS_DROPHILITED) != 0;
+}
+inline
+void WinTreeViewItem::SetDropHilitedState(bool Value)
+{
+    TreeView_SetItemState(_Handle, _Item, (Value ? TVIS_DROPHILITED : 0), TVIS_DROPHILITED);
+}
+inline
+bool WinTreeViewItem::GetExpendedState()
+{
+    return TreeView_GetItemState(_Handle, _Item, TVIS_EXPANDED) != 0;
+}
+inline
+void WinTreeViewItem::SetExpendedState(bool Value)
+{
+    TreeView_SetItemState(_Handle, _Item, (Value ? TVIS_EXPANDED : 0), TVIS_EXPANDED);
+}
+inline
+bool WinTreeViewItem::GetSelectedState()
+{
+    return TreeView_GetItemState(_Handle, _Item, TVIS_SELECTED) != 0;
+}
+inline
+void WinTreeViewItem::SetSelectedState(bool Value)
+{
+    TreeView_SetItemState(_Handle, _Item, (Value ? TVIS_SELECTED : 0), TVIS_SELECTED);
+}
+inline
+bool WinTreeViewItem::GetChecked()
+{
+    return TreeView_GetCheckState(_Handle, _Item) == TRUE;
+}
+inline
+void WinTreeViewItem::SetChecked(bool Value)
+{
+    TreeView_SetCheckState(_Handle, _Item, (Value ? TRUE : FALSE));
+}
+inline
+void WinTreeViewItem::EnsureVisible()
+{
+    TreeView_EnsureVisible(_Handle, _Item);
+}
+inline
+void WinTreeViewItem::Expand()
+{
+    TreeView_Expand(_Handle, _Item, TVE_EXPAND);
+}
+inline
+void WinTreeViewItem::Collapse()
+{
+    TreeView_Expand(_Handle, _Item, TVE_COLLAPSE);
+}
+inline
+void WinTreeViewItem::Toggle()
+{
+    TreeView_Expand(_Handle, _Item, TVE_TOGGLE);
+}
+inline
+WinImageList* WinTreeView::GetNormalImageList()
+{
+    return _NormalImageList;
+}
+inline
+void WinTreeView::SetNormalImageList(WinImageList* ImageList)
+{
+    TreeView_SetImageList(_Handle, ImageList->GetHandle(), TVSIL_NORMAL);
+    _NormalImageList = ImageList;
+}
+inline
+WinImageList* WinTreeView::GetStateImageList()
+{
+    return _StateImageList;
+}
+inline
+void WinTreeView::SetStateImageList(WinImageList* ImageList)
+{
+    TreeView_SetImageList(_Handle, ImageList->GetHandle(), TVSIL_STATE);
+    _StateImageList = ImageList;
+}
+inline
+COLORREF WinTreeView::GetLineColor()
+{
+    return TreeView_GetLineColor(_Handle);
+}
+inline
+void WinTreeView::SetLineColor(COLORREF Value)
+{
+    TreeView_SetLineColor(_Handle, Value);
+}
+inline
+COLORREF WinTreeView::GetTextColor()
+{
+    return TreeView_GetTextColor(_Handle);
+}
+inline
+void WinTreeView::SetTextColor(COLORREF Value)
+{
+    TreeView_SetTextColor(_Handle, Value);
+}
+inline
+COLORREF WinTreeView::GetBackColor()
+{
+    return TreeView_GetBkColor(_Handle);
+}
+inline
+void WinTreeView::SetBackColor(COLORREF Value)
+{
+    TreeView_SetBkColor(_Handle, Value);
+}
+inline
+bool WinTreeView::GetShowCheckBoxes()
+{
+    return GetStyle(TVS_CHECKBOXES);
+}
+inline
+void WinTreeView::SetShowCheckBoxes(bool Value)
+{
+    SetStyle(TVS_CHECKBOXES, Value);
+}
+inline
+bool WinTreeView::GetEnableDragDrop()
+{
+    return !GetStyle(TVS_DISABLEDRAGDROP);
+}
+inline
+void WinTreeView::SetEnableDragDrop(bool Value)
+{
+    SetStyle(TVS_DISABLEDRAGDROP, !Value);
+}
+inline
+bool WinTreeView::GetEditable()
+{
+    return GetStyle(TVS_EDITLABELS);
+}
+inline
+void WinTreeView::SetEditable(bool Value)
+{
+    SetStyle(TVS_EDITLABELS, Value);
+}
+inline
+bool WinTreeView::GetFullRowSelect()
+{
+    return GetStyle(TVS_FULLROWSELECT);
+}
+inline
+void WinTreeView::SetFullRowSelect(bool Value)
+{
+    SetStyle(TVS_FULLROWSELECT, Value);
+}
+inline
+bool WinTreeView::GetHasButtons()
+{
+    return GetStyle(TVS_HASBUTTONS);
+}
+inline
+void WinTreeView::SetHasButtons(bool Value)
+{
+    SetStyle(TVS_HASBUTTONS, Value);
+}
+inline
+bool WinTreeView::GetHasLines()
+{
+    return GetStyle(TVS_HASLINES);
+}
+inline
+void WinTreeView::SetHasLines(bool Value)
+{
+    SetStyle(TVS_HASLINES, Value);
+}
+inline
+bool WinTreeView::GetAlwaysShowSelection()
+{
+    return GetStyle(TVS_SHOWSELALWAYS);
+}
+inline
+void WinTreeView::SetAlwaysShowSelection(bool Value)
+{
+    SetStyle(TVS_SHOWSELALWAYS, Value);
+}
+inline
+bool WinTreeView::GetDimmedCheckBoxes()
+{
+    return GetExStyle(TVS_EX_DIMMEDCHECKBOXES);
+}
+inline
+void WinTreeView::SetDimmedCheckBoxes(bool Value)
+{
+    SetExStyle(TVS_EX_DIMMEDCHECKBOXES, Value);
+}
+inline
+bool WinTreeView::GetExclusionCheckBoxes()
+{
+    return GetExStyle(TVS_EX_EXCLUSIONCHECKBOXES);
+}
+inline
+void WinTreeView::SetExclusionCheckBoxes(bool Value)
+{
+    SetExStyle(TVS_EX_EXCLUSIONCHECKBOXES, Value);
+}
+inline
+bool WinTreeView::GetFadeButton()
+{
+    return GetExStyle(TVS_EX_FADEINOUTEXPANDOS);
+}
+inline
+void WinTreeView::SetFadeButton(bool Value)
+{
+    SetExStyle(TVS_EX_FADEINOUTEXPANDOS, Value);
+}
+inline
+void WinTreeView::EditLabel(WinTreeViewItem Item)
+{
+    TreeView_EditLabel(_Handle, Item._Item);
+}
+inline
+void WinTreeView::FinishEditLabel()
+{
+    TreeView_EndEditLabelNow(_Handle, FALSE);
+}
+inline
+void WinTreeView::CancelEditLabel()
+{
+    TreeView_EndEditLabelNow(_Handle, TRUE);
+}
+inline
+WinTreeViewItem WinTreeView::GetFirstRoot()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetRoot(_Handle));
+}
+inline
+WinTreeViewItem WinTreeView::GetCurrentSelectedItem()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetSelection(_Handle));
+}
+inline
+WinTreeViewItem WinTreeView::GetFirstVisible()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetFirstVisible(_Handle));
+}
+inline
+WinTreeViewItem WinTreeView::GetLastVisible()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetLastVisible(_Handle));
+}
+inline
+WinTreeViewItem WinTreeView::GetDropHighlighted()
+{
+    return WinTreeViewItem(_Handle, TreeView_GetDropHilight(_Handle));
+}
+inline
+void WinTreeView::Clear()
+{
+    TreeView_DeleteAllItems(_Handle);
+}

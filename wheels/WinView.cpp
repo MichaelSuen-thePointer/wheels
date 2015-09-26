@@ -667,6 +667,374 @@ void WinListView::Sort(void* Param)
     P.ListView = this;
     ListView_SortItemsEx(_Handle, ListViewCompareFunc, &P);
 }
+void WinListView::InsertItem(int Index, std::wstring& Text, int ImageIndex)
+{
+    LVITEMW Item;
+    memset(&Item, 0, sizeof(Item));
+    Item.mask = LVIF_TEXT | (ImageIndex == -1 ? 0 : LVIF_IMAGE) | LVIF_PARAM;
+    Item.pszText = &Text[0];
+    Item.cchTextMax = Text.length() + 1;
+    Item.iItem = Index;
+    Item.iImage = ImageIndex;
+    Item.lParam = 0;
+    ListView_InsertItem(_Handle, &Item);
+}
+WinListViewItem WinListView::GetItem(int Index)
+{
+    if (Index >= 0 && Index < GetItemCount())
+    {
+        return WinListViewItem(_Handle, Index);
+    }
+    else
+    {
+        return WinListViewItem();
+    }
+}
+void WinListView::InsertColumn(int Index, std::wstring& Text, int SubItemIndex)
+{
+    LVCOLUMNW Column;
+    memset(&Column, 0, sizeof(Column));
+    Column.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;
+    Column.pszText = &Text[0];
+    Column.cchTextMax = Text.length() + 1;
+    Column.iSubItem = SubItemIndex + 1;
+    Column.cx = 100;
+    if (ListView_InsertColumn(_Handle, Index, &Column) != -1)
+    {
+        _ColumnCount++;
+    }
+}
+void WinListView::DeleteColumn(int Index)
+{
+    if (ListView_DeleteColumn(_Handle, Index) == TRUE)
+    {
+        _ColumnCount--;
+    }
+}
+WinListViewColumn WinListView::GetColumn(int Index)
+{
+    if (Index >= 0 && Index < GetColumnCount())
+    {
+        return WinListViewColumn(_Handle, Index);
+    }
+    else
+    {
+        return WinListViewColumn();
+    }
+}
+int WinListView::InsertGroup(int Index, std::wstring& Text)
+{
+    LVGROUP Group;
+    memset(&Group, 0, sizeof(Group));
+    Group.cbSize = sizeof(Group);
+    Group.mask = LVGF_HEADER | LVGF_GROUPID;
+    Group.pszHeader = &Text[0];
+    Group.iGroupId = _UsedGroupIDs;
+    ListView_InsertGroup(_Handle, Index, &Group);
+    return _UsedGroupIDs++;
+}
+void WinListView::DeleteGroup(int Index)
+{
+    WinListViewGroup Group = GetGroup(Index);
+    if (Group)
+    {
+        ListView_RemoveGroup(_Handle, Group.GetGroupID());
+    }
+}
+WinListViewGroup WinListView::GetGroup(int Index)
+{
+    if (Index >= 0 && Index < GetGroupCount())
+    {
+        LVGROUP Group;
+        FillListViewGroup(&Group, LVGF_GROUPID);
+        ListView_GetGroupInfoByIndex(_Handle, Index, &Group);
+        return GetGroupByID(Group.iGroupId);
+    }
+    else
+    {
+        return WinListViewGroup();
+    }
+}
+
+WinListViewGroup WinListView::GetGroupByID(int ID)
+{
+    if (ListView_HasGroup(_Handle, ID) == TRUE)
+    {
+        return WinListViewGroup(_Handle, ID);
+    }
+    else
+    {
+        return WinListViewGroup();
+    }
+}
+void FillTreeViewInsertItem(TVINSERTSTRUCT* Item, std::wstring& Text, int ImageIndex, int SelectedImageIndex)
+{
+    if (SelectedImageIndex == -1)
+    {
+        SelectedImageIndex = ImageIndex;
+    }
+    memset(Item, 0, sizeof(*Item));
+    Item->itemex.mask = TVIF_TEXT | (ImageIndex == -1 ? 0 : TVIF_IMAGE | TVIF_SELECTEDIMAGE);
+    if (Text.length())
+    {
+        Item->itemex.pszText = &Text[0];
+    }
+    if (ImageIndex != -1)
+    {
+        Item->itemex.iImage = ImageIndex;
+        Item->itemex.iSelectedImage = SelectedImageIndex;
+    }
+}
+
+void FillTreeViewItem(TVITEMEX* Item, HTREEITEM Handle, UINT Mask)
+{
+    memset(Item, 0, sizeof(*Item));
+    Item->hItem = Handle;
+    Item->mask = Mask;
+}
+WinTreeViewItem::WinTreeViewItem(HWND Handle, HTREEITEM Item)
+    : _Handle(Handle)
+    , _Item(Item)
+{
+}
+WinTreeViewItem::WinTreeViewItem(const WinTreeViewItem& Item)
+    : WinTreeViewItem(Item._Handle, Item._Item)
+{
+}
+WinTreeViewItem::WinTreeViewItem()
+    : WinTreeViewItem(0, nullptr)
+{
+}
+WinTreeViewItem& WinTreeViewItem::operator=(const WinTreeViewItem& Item)
+{
+    _Handle = Item._Handle;
+    _Item = Item._Item;
+    return *this;
+}
+WinTreeViewItem WinTreeViewItem::InsertAtLast(std::wstring& Text, int ImageIndex, int SelectedImageIndex)
+{
+    TVINSERTSTRUCT Item;
+    FillTreeViewInsertItem(&Item, Text, ImageIndex, SelectedImageIndex);
+    Item.hParent = _Item;
+    Item.hInsertAfter = TVI_LAST;
+    return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
+}
+
+WinTreeViewItem WinTreeViewItem::InsertAtFirst(std::wstring& Text, int ImageIndex, int SelectedImageIndex)
+{
+    TVINSERTSTRUCT Item;
+    FillTreeViewInsertItem(&Item, Text, ImageIndex, SelectedImageIndex);
+    Item.hParent = _Item;
+    Item.hInsertAfter = TVI_FIRST;
+    return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
+}
+
+WinTreeViewItem WinTreeViewItem::InsertAfter(std::wstring& Text, int ImageIndex, int SelectedImageIndex)
+{
+    TVINSERTSTRUCT Item;
+    FillTreeViewInsertItem(&Item, Text, ImageIndex, SelectedImageIndex);
+    Item.hParent = GetParent()._Item;
+    Item.hInsertAfter = _Item;
+    return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
+}
+
+void WinTreeViewItem::DeleteSelf()
+{
+    TreeView_DeleteItem(_Handle, _Item);
+    _Handle = 0;
+    _Item = 0;
+}
+std::wstring WinTreeViewItem::GetText()
+{
+    wchar_t Buffer[LISTVIEW_TEXT_BUFFER_SIZE] = {0};
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_TEXT);
+    Item.pszText = Buffer;
+    Item.cchTextMax = sizeof(Buffer) / sizeof(*Buffer);
+    TreeView_GetItem(_Handle, &Item);
+    return Buffer;
+}
+
+void WinTreeViewItem::SetText(std::wstring& Value)
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_TEXT);
+    if (Value.length())
+    {
+        Item.pszText = &Value[0];
+    }
+    TreeView_SetItem(_Handle, &Item);
+}
+
+int WinTreeViewItem::GetImageIndex()
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_IMAGE);
+    TreeView_GetItem(_Handle, &Item);
+    return Item.iImage;
+}
+
+void WinTreeViewItem::SetImageIndex(int Value)
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_IMAGE);
+    Item.iImage = Value;
+    TreeView_SetItem(_Handle, &Item);
+}
+
+int WinTreeViewItem::GetSelectedImageIndex()
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_SELECTEDIMAGE);
+    TreeView_GetItem(_Handle, &Item);
+    return Item.iSelectedImage;
+}
+
+void WinTreeViewItem::SetSelectedImageIndex(int Value)
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_SELECTEDIMAGE);
+    Item.iSelectedImage = Value;
+    TreeView_SetItem(_Handle, &Item);
+}
+
+void* WinTreeViewItem::GetCustomData()
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_PARAM);
+    TreeView_GetItem(_Handle, &Item);
+    return (void*)Item.lParam;
+}
+
+void WinTreeViewItem::SetCustomData(void* Value)
+{
+    TVITEMEX Item;
+    FillTreeViewItem(&Item, _Item, TVIF_PARAM);
+    Item.lParam = (LPARAM)Value;
+    TreeView_SetItem(_Handle, &Item);
+}
+WinTreeView::WinTreeView(WinContainer* Parent)
+    : WinControl()
+    , _NormalImageList(nullptr)
+    , _StateImageList(nullptr)
+{
+    _CreateWindow(
+        TVS_EX_DOUBLEBUFFER,
+        WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT,
+        WC_TREEVIEW,
+        Parent);
+    TreeView_SetUnicodeFormat(_Handle, TRUE);
+    //SetExStyle(TVS_EX_DOUBLEBUFFER,true);
+}
+
+WinTreeView::~WinTreeView()
+{
+}
+
+LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProcedure)
+{
+    LRESULT Result = 0;
+    switch (Message)
+    {
+    case WM_NOTIFY_DISPATCHED:
+        switch (((NMHDR*)lParam)->code)
+        {
+        case NM_CLICK:
+        {
+            OnClick(this);
+            break;
+        }
+        case NM_DBLCLK:
+        {
+            OnDblClick(this);
+            break;
+        }
+        case NM_RCLICK:
+        {
+            OnRightClick(this);
+            break;
+        }
+        case NM_RDBLCLK:
+        {
+            OnRightDblClick(this);
+            break;
+        }
+        case TVN_BEGINDRAG:
+        {
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            OnBeginDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            break;
+        }
+        case TVN_BEGINRDRAG:
+        {
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            OnBeginRightDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            break;
+        }
+        case TVN_BEGINLABELEDIT:
+        {
+            CallDefaultProcedure = false;
+            NMTVDISPINFO* Param = (NMTVDISPINFO*)lParam;
+            bool Accept = true;
+            OnBeginLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
+            return Accept ? FALSE : TRUE;
+            break;
+        }
+        case TVN_ENDLABELEDIT:
+        {
+            CallDefaultProcedure = false;
+            NMTVDISPINFO* Param = (NMTVDISPINFO*)lParam;
+            bool Accept = true;
+            OnEndLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
+            return Accept ? TRUE : FALSE;
+            break;
+        }
+        case TVN_ITEMEXPANDING:
+        {
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            OnItemExpanding(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            break;
+        }
+        case TVN_ITEMEXPANDED:
+        {
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            OnItemExpanded(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            break;
+        }
+        case TVN_SELCHANGING:
+        {
+            CallDefaultProcedure = false;
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            bool Accept = true;
+            OnItemSelecting(this, WinTreeViewItem(_Handle, Param->itemNew.hItem), Accept);
+            return Accept ? FALSE : TRUE;
+            break;
+        }
+        case TVN_SELCHANGED:
+        {
+            NMTREEVIEW* Param = (NMTREEVIEW*)lParam;
+            OnItemSelected(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            break;
+        }
+        }
+        Result = WinControl::ProcessMessage(Message, wParam, lParam, CallDefaultProcedure);
+        break;
+    default:
+        Result = WinControl::ProcessMessage(Message, wParam, lParam, CallDefaultProcedure);
+    }
+    return Result;
+}
+
+WinTreeViewItem WinTreeView::AddRootItem(std::wstring& Text, int ImageIndex, int SelectedImageIndex)
+{
+    TVINSERTSTRUCT Item;
+    FillTreeViewInsertItem(&Item, Text, ImageIndex, SelectedImageIndex);
+    Item.hParent = NULL;
+    Item.hInsertAfter = TVI_ROOT;
+    return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
+}
+
+
 
 }
 }

@@ -297,8 +297,8 @@ public:
     /*Items*/
 
     int GetItemCount();
-    void AddItem(const std::wstring& Text, int ImageIndex = -1);
-    void InsertItem(int Index, const std::wstring& Text, int ImageIndex = -1);
+    void AddItem(std::wstring& Text, int ImageIndex = -1);
+    void InsertItem(int Index, std::wstring& Text, int ImageIndex = -1);
     void DeleteItem(int Index);
     void Clear();
     WinListViewItem GetItem(int Index);
@@ -311,8 +311,8 @@ public:
     /*Columns*/
 
     int GetColumnCount();
-    void AddColumn(const std::wstring& Text, int SubItemIndex = -1);
-    void InsetColumn(int Index, const std::wstring& Text, int SubItemIndex = -1);
+    void AddColumn(std::wstring& Text, int SubItemIndex = -1);
+    void InsertColumn(int Index, std::wstring& Text, int SubItemIndex = -1);
     void DeleteColumn(int Index);
     WinListViewColumn GetColumn(int index);
     int GetSelectedColumnIndex();
@@ -322,8 +322,8 @@ public:
 
     void EnableGrouping(bool Value);
     int GetGroupCount();
-    int AddGroup(const std::wstring& Text);
-    int InsertGroup(int Index, const std::wstring& Text);
+    int AddGroup(std::wstring& Text);
+    int InsertGroup(int Index, std::wstring& Text);
     void DeleteGroup(int Index);
     void DeleteGroupByID(int ID);
     WinListViewGroup GetGroup(int Index);
@@ -341,18 +341,19 @@ protected:
 public:
     WinTreeViewItem(const WinTreeViewItem& Item);
     WinTreeViewItem();
+    operator bool();
     WinTreeViewItem& operator=(const WinTreeViewItem& Item);
 
-    WinTreeViewItem InsertAlLast(const std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
-    WinTreeViewItem InsertAtFirst(const std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
-    WinTreeViewItem InsertAfter(const std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
+    WinTreeViewItem InsertAtLast(std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
+    WinTreeViewItem InsertAtFirst(std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
+    WinTreeViewItem InsertAfter(std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
     void DeleteSelf();
 
     WinTreeViewItem GetParent();
     WinTreeViewItem GetFirstChild();
     WinTreeViewItem GetPrevious();
     WinTreeViewItem GetNext();
-    WinTreeViewItem GerNextVisible();
+    WinTreeViewItem GetNextVisible();
     WinTreeViewItem GetPrevVisible();
     WinTreeViewItem GetNextSelected();
 
@@ -361,7 +362,7 @@ public:
     void SetFirstVisible();
 
     std::wstring GetText();
-    void SetText(const std::wstring& Value);
+    void SetText(std::wstring& Value);
 
     int GetImageIndex();
     void SetImageIndex(int Value);
@@ -383,6 +384,9 @@ public:
 
     bool GetExpendedState();
     void SetExpendedState(bool Value);
+
+    bool GetSelectedState();
+    void SetSelectedState(bool Value);
 
     bool GetChecked();
     void SetChecked(bool Value);
@@ -417,7 +421,7 @@ public:
     TreeViewItemEvent OnItemExpanding;
     TreeViewItemEvent OnItemExpanded;
     TreeViewItemEvent OnItemSelected;
-    TreeViewEditEvent OnBeginLabalEdit;
+    TreeViewEditEvent OnBeginLabelEdit;
     TreeViewEditEvent OnEndLabelEdit;
     TreeViewVerifyEvent OnItemSelecting;
 
@@ -476,10 +480,10 @@ public:
 
     /*Items*/
 
-    WinTreeViewItem AddRootItem(const std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
+    WinTreeViewItem AddRootItem(std::wstring& Text, int ImageIndex = -1, int SelectedImageIndex = -1);
     WinTreeViewItem GetFirstRoot();
     WinTreeViewItem GetCurrentSelectedItem();
-    WinTreeViewItem GetFitstVisible();
+    WinTreeViewItem GetFirstVisible();
     WinTreeViewItem GetLastVisible();
     WinTreeViewItem GetDropHighlighted();
     void Clear();
