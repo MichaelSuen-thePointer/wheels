@@ -153,6 +153,7 @@ int WinTab::GetPageCount()
 	return TabCtrl_GetItemCount(_Handle);
 }
 
+inline
 int WinTab::GetRowCount()
 {
 	return TabCtrl_GetRowCount(_Handle);

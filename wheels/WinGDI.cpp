@@ -589,6 +589,14 @@ WinFont::WinFont(const std::wstring& Name, int Height, int Width, int Escapement
 	_Handle = CreateFontIndirectW(&_FontInfo);
 }
 
+std::shared_ptr<WinFont> WinFont::FromWindow(HWND Handle, const wchar_t* Name, int Point)
+{
+    HDC WindowDC = GetDC(Handle);
+    int Height = MulDiv(Point, GetDeviceCaps(WindowDC, LOGPIXELSY), 72);
+    ReleaseDC(Handle, WindowDC);
+    return std::make_shared<WinFont>(Name, -Height, 0, 0, 0, FW_NORMAL, false, false, false, true);
+}
+
 WinFont::WinFont(LOGFONT* FontInfo)
 	: _FontInfo(*FontInfo)
 	, _Handle(CreateFontIndirect(&_FontInfo))

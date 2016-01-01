@@ -201,7 +201,9 @@ protected:
 	HFONT _Handle;
 public:
 	WinFont(const std::wstring& Name, int Height, int Width, int Escapement, int Orientation, int Weight, bool Italic, bool UnderLine, bool StrikeOut, bool Antialise);
-	WinFont(LOGFONT* FontInfo);
+    
+    static std::shared_ptr<WinFont> FromWindow(HWND Handle, const wchar_t* Name, int Point);
+    WinFont(LOGFONT* FontInfo);
 	~WinFont();
 	HFONT GetHandle();
 	LOGFONT* GetInfo();

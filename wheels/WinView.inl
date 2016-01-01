@@ -169,6 +169,7 @@ void WinListView::InternalSetExStyle(DWORD ExStyle)
 {
     ListView_SetExtendedListViewStyle(_Handle, ExStyle);
 }
+inline
 WinImageList* WinListView::GetSmallImageList()
 {
     return _SmallImageList;
@@ -227,7 +228,7 @@ COLORREF WinListView::GetTextColor()
 {
     return ListView_GetTextColor(_Handle);
 }
-
+inline
 void WinListView::SetTextColor(COLORREF Value)
 {
     ListView_SetTextColor(_Handle, Value);
@@ -567,6 +568,7 @@ HTREEITEM WinTreeViewItem::GetHandle()
 {
     return _Item;
 }
+inline
 void WinTreeViewItem::SetDropTarget()
 {
     TreeView_SelectDropTarget(_Handle, _Item);

@@ -9,10 +9,7 @@ WinEdit::WinEdit(WinContainer* Parent, bool Multiline, bool AlwaysShowSelection)
 	: WinControl()
 {
 	_CreateWindow(0,
-				  WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
-				  ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_LEFT |
-				  (AlwaysShowSelection ? ES_NOHIDESEL : 0) |
-				  (Multiline ? ES_MULTILINE : 0) | ES_WANTRETURN,
+				  WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_LEFT | (AlwaysShowSelection ? ES_NOHIDESEL : 0) | (Multiline ? ES_MULTILINE : 0) | ES_WANTRETURN,
 				  WC_EDIT,
 				  Parent);
 }

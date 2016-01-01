@@ -147,7 +147,7 @@ namespace pl
 		Return Result = Return();														\
 		for (int i = 0; i < _Handlers.size(); i++)										\
 		{																				\
-			Result = _Handlers[i]->Invoke Names;											\
+			Result = _Handlers[i]->Invoke Names;										\
 		}																				\
 		return Result;																	\
 	}
@@ -181,7 +181,7 @@ namespace pl
 		TClass* _Owner;																	\
 		Handler _Handler;																\
 	public:																				\
-		EventMember##Name(TClass* o, Handler h)										\
+		EventMember##Name(TClass* o, Handler h)										    \
 			: _Owner(o)																	\
 			, _Handler(h)																\
 		{}																				\
@@ -192,18 +192,18 @@ namespace pl
 		void GetElement(void*& A, void*& B) override									\
 		{																				\
 			A = static_cast<void*>(_Owner);												\
-			B = reinterpret_cast<void*>(*reinterpret_cast<int*>(&_Handler));					\
+			B = reinterpret_cast<void*>(*reinterpret_cast<int*>(&_Handler));			\
 		}																				\
 	};																					\
 																						\
 	class Name : public Object															\
 	{																					\
 	protected:																			\
-		using HandlerList = std::vector<IEvent##Name*>;									\
+		using HandlerList = std::vector<std::shared_ptr<IEvent##Name>>;				    \
 		HandlerList _Handlers;															\
-		int Find(IEvent##Name* Handler);												\
-		void Bind(IEvent##Name* Handler);												\
-		void Unbind(IEvent##Name* Handler);												\
+		int Find(std::shared_ptr<IEvent##Name> Handler);							    \
+		void Bind(std::shared_ptr<IEvent##Name> Handler);							    \
+		void Unbind(std::shared_ptr<IEvent##Name> Handler);							    \
 	public:																				\
 		Name();																			\
 		~Name();																		\
@@ -212,12 +212,12 @@ namespace pl
 		template <typename TClass>														\
 		void Bind(TClass* Owner, typename EventMember##Name<TClass>::Handler Handler)	\
 		{																				\
-			Bind(new EventMember##Name<TClass>(Owner, Handler));						\
+			Bind(std::make_shared<EventMember##Name<TClass>>(Owner, Handler));			\
 		}																				\
 		template <typename TClass>														\
 		void Unbind(TClass* Owner, typename EventMember##Name<TClass>::Handler Handler)	\
 		{																				\
-			Unbind(new EventMember##Name<TClass>(Owner, Handler));						\
+			Unbind(std::make_shared<EventMember##Name<TClass>>(Owner, Handler));		\
 		}																				\
 		void operator() Params;															\
 	};
@@ -235,7 +235,7 @@ namespace pl
 		A = nullptr;																	\
 		B = static_cast<void*>(_Handler);												\
 	}																					\
-	int Name::Find(IEvent##Name* Handler)												\
+	int Name::Find(std::shared_ptr<IEvent##Name> Handler)							    \
 	{																					\
 		void* NewA;																		\
 		void* NewB;																		\
@@ -252,43 +252,35 @@ namespace pl
 		}																				\
 		return -1;																		\
 	}																					\
-	void Name::Bind(IEvent##Name* Handler)												\
+	void Name::Bind(std::shared_ptr<IEvent##Name> Handler)								\
+	{																					\
+		int Index = Find(Handler);														\
+		if (Index == -1)																\
+		{																				\
+			_Handlers.push_back(Handler);		                                		\
+		}																				\
+	}																					\
+	void Name::Unbind(std::shared_ptr<IEvent##Name> Handler)							\
 	{																					\
 		int Index = Find(Handler);														\
 		if (Index != -1)																\
 		{																				\
-			delete Handler;																\
-		}																				\
-		else																			\
-		{																				\
-			_Handlers.push_back(Handler);												\
+            _Handlers.erase(_Handlers.begin() + Index);									\
 		}																				\
 	}																					\
-	void Name::Unbind(IEvent##Name* Handler)											\
-	{																					\
-		int Index = Find(Handler);														\
-		if (Index != -1)																\
-		{																				\
-			delete _Handlers[Index];													\
-			_Handlers.erase(_Handlers.begin() + Index);									\
-		}																				\
-		delete Handler;																	\
-	}																					\
-	Name::Name(){}																		\
+	Name::Name()                                                                        \
+    {                                                                                   \
+    }																		            \
 	Name::~Name()																		\
 	{																					\
-		for (auto& elem : _Handlers)													\
-		{																				\
-			delete elem;																\
-		}																				\
 	}																					\
 	void Name::Bind(EventNormal##Name::Handler Handler)									\
 	{																					\
-		Bind(new EventNormal##Name(Handler));											\
+		Bind(std::make_shared<EventNormal##Name>(Handler));								\
 	}																					\
 	void Name::Unbind(EventNormal##Name::Handler Handler)								\
 	{																					\
-		Unbind(new EventNormal##Name(Handler));											\
+		Unbind(std::make_shared<EventNormal##Name>(Handler));							\
 	}																					\
 	void Name::operator() Params														\
 	{																					\

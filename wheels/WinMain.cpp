@@ -1,7 +1,7 @@
 #include "WinMain.h"
 
 #include <CommCtrl.h>
-
+#include <algorithm>
 #pragma comment(lib,"comctl32.lib")
 #pragma comment(linker,"/manifestdependency:\""		\
 	"type='win32' "									\
@@ -81,7 +81,7 @@ bool WinApplication::ProcessMessage(bool InMessageLoop)
 	return Result;
 }
 
-bool WinApplication::RegisterForm(WinForm* Form)
+bool WinApplication::RegisterForm(std::shared_ptr<WinForm> Form)
 {
 	if (std::find(_Forms.begin(), _Forms.end(), Form) == _Forms.end())
 	{
@@ -100,7 +100,7 @@ bool WinApplication::RegisterForm(WinForm* Form)
 
 void WinApplication::UnregisterForm(WinForm* Form)
 {
-	auto Place = std::find(_Forms.begin(), _Forms.end(), Form);
+    auto Place = std::find_if(_Forms.begin(), _Forms.end(), [=](std::shared_ptr<WinForm> form) {return form.get() == Form; });
 	if (Place != _Forms.end())
 	{
 		_Forms.erase(Place);
@@ -126,7 +126,7 @@ WinApplication::WinApplication(HINSTANCE hInstance)
 	, _Forms()
 	, _Pen(new WinPen(PS_SOLID, 0, RGB(0, 0, 0)))
 	, _Brush(new WinBrush(RGB(255, 255, 255)))
-	, _Font(new WinFont(L"Î¢ÈíÑÅºÚ", 12, 0, 0, 0, 400, false, false, false, true))
+	, _Font(new WinFont(L"Î¢ÈíÑÅºÚ", 0, 0, 0, 0, 400, false, false, false, true))
 {}
 
 std::wstring WinApplication::GetAppName()
@@ -147,7 +147,7 @@ void WinApplication::Run()
 	}
 }
 
-WinControl* WinApplication::GetControl(HWND Handle)
+std::shared_ptr<WinControl> WinApplication::GetControl(HWND Handle)
 {
 	auto Place = _Controls.find(Handle);
 	if (Place != _Controls.end())
@@ -159,19 +159,7 @@ WinControl* WinApplication::GetControl(HWND Handle)
 
 void WinApplication::Terminate()
 {
-	for (WinForm*& Form : _Forms)
-	{
-		if (Form != _MainForm)
-		{
-			Form->DestroyForm();
-			delete Form;
-		}
-	}
-	if (_MainForm)
-	{
-		_MainForm->DestroyForm();
-		delete _MainForm;
-	}
+
 }
 
 inline
@@ -202,7 +190,7 @@ LRESULT CALLBACK SubclassProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lPara
 {
 	bool CallDefaultProc = true;
 	LRESULT Result = 0;
-	WinControl* Control = GetApplication()->GetControl(hWnd);
+	std::shared_ptr<WinControl> Control = GetApplication()->GetControl(hWnd);
 
 	if (Control)
 	{
@@ -219,7 +207,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT Result = 0;
 	bool CallDefaultProc = true;
-	WinControl* Control = GetApplication()->GetControl(hWnd);
+	std::shared_ptr<WinControl> Control = GetApplication()->GetControl(hWnd);
 	if (Control)
 	{
 		Result = Control->ProcessMessage(uiMsg, wParam, lParam, CallDefaultProc);

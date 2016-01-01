@@ -340,7 +340,11 @@ void WinContainer::GetClientArea(RECT* Rect)
 inline
 Placement* WinContainer::GetPlacement()
 {
-	return _Placement ? _Placement : _Placement = new Placement(this);
+    if (!_Placement)
+    {
+        _Placement = new Placement(this);
+    }
+    return _Placement;
 }
 
 inline
