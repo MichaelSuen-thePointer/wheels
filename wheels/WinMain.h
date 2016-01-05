@@ -15,12 +15,12 @@ class WinApplication: public Object
 	friend class WinControl;
 	friend class WinForm;
 
-	using ControlMap = std::map<HWND, std::shared_ptr<WinControl>>;
-	using FormList = std::vector<std::shared_ptr<WinForm>>;
+	using ControlMap = std::map<HWND, WinControl*>;
+	using FormList = std::vector<WinForm*>;
 protected:
 	HINSTANCE _Instance;
 	ControlMap _Controls;
-	std::shared_ptr<WinForm> _MainForm;
+	WinForm* _MainForm;
 	FormList _Forms;
 
 	WinPen::Pointer _Pen;
@@ -28,7 +28,7 @@ protected:
 	WinFont::Pointer _Font;
 
 	bool ProcessMessage(bool InMessageLoop);
-	bool RegisterForm(std::shared_ptr<WinForm> Form);
+	bool RegisterForm(WinForm* Form);
 	void UnregisterForm(WinForm* Form);
 	void RunModal(WinForm* Form);
 public:
@@ -38,9 +38,9 @@ public:
 	std::wstring GetAppName();
 	void Run();
 	void DoEvents();
-	std::shared_ptr<WinControl> GetControl(HWND Handle);
+	WinControl* GetControl(HWND Handle);
 	void Terminate();
-	std::shared_ptr<WinForm> GetMainForm();
+	WinForm* GetMainForm();
 
 	WinPen::Pointer GetDefaultPen();
 	WinBrush::Pointer GetDefaultBrush();

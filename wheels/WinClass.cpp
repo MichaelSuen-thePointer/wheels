@@ -15,14 +15,17 @@ MouseStruct::MouseStruct(WPARAM wParam, LPARAM lParam, bool WheelMessage)
     , RightButton((wParam & MK_RBUTTON) == 1)
     , X(MAKEPOINTS(lParam).x)
     , Y(MAKEPOINTS(lParam).y)
-{}
+{
+}
 
 KeyStruct::KeyStruct(WPARAM wParam, LPARAM lParam)
     : KeyCode(static_cast<int>(wParam))
     , RepeatCount(lParam % 65536)
     , PreviousDown(((lParam >> 30) & 2) == 1)
     , Alt(((lParam >> 29) & 1) == 1)
-{}
+{
+}
+
 
 IMPLEMENT_VOID_EVENT(NotifyEvent, (Sender), (Object* Sender))
 IMPLEMENT_VOID_EVENT(MovingEvent, (Sender, Area), (Object* Sender, LPRECT Area))
@@ -45,12 +48,14 @@ struct KeyNamePair
 KeyNamePair::KeyNamePair(int Code, const std::wstring& Name)
     : Code(Code)
     , Name(Name)
-{}
+{
+}
 
 KeyNamePair::KeyNamePair(std::pair<int, const std::wstring&>& Pair)
     : Code(Pair.first)
     , Name(Pair.second)
-{}
+{
+}
 
 std::vector<KeyNamePair> _AcceleratorNames;
 AcceleratorManager* _AcceleratorManager = nullptr;
@@ -151,7 +156,8 @@ void IAcceleratorReceiver::Unbind()
 
 AcceleratorItem::AcceleratorItem(const std::wstring& Name)
     : _Name(Name)
-{}
+{
+}
 
 AcceleratorItem::~AcceleratorItem()
 {
@@ -177,7 +183,8 @@ bool AcceleratorItem::Bind(IAcceleratorReceiver* Receiver)
 AcceleratorManager::AcceleratorManager()
     : _AcceleratorList(1)
     , _Handle(CreateAcceleratorTableW(&_AcceleratorList[0], _AcceleratorList.size()))
-{}
+{
+}
 
 AcceleratorManager::~AcceleratorManager()
 {
@@ -266,7 +273,8 @@ Placement::Placement()
     , _MinClientWidth(0)
     , _MinClientHeight(0)
     , _DisableResize(false)
-{}
+{
+}
 
 Placement::Placement(Placement* Parent)
     : Placement()
@@ -607,7 +615,8 @@ public:
         , _Border(Border)
         , _MinWidth(MinWidth)
         , _MinHeight(MinHeight)
-    {}
+    {
+    }
 
     void Apply(Placement* Placement)
     {
@@ -642,7 +651,8 @@ public:
         , _Behavior(PlacementBehavior)
         , _Placement1(Placement1)
         , _Placement2(Placement2)
-    {}
+    {
+    }
 
     void Apply(Placement* Placement)
     {
@@ -693,7 +703,8 @@ public:
 Blank::Blank(int MinWidth, int MinHeight)
     : _MinWidth(MinWidth)
     , _MinHeight(MinHeight)
-{}
+{
+}
 
 Blank::operator Base::Pointer()
 {
@@ -702,22 +713,26 @@ Blank::operator Base::Pointer()
 
 Control::Control(WinControl* Control)
     : Control(Control, 0, 0, 0)
-{}
+{
+}
 
 Control::Control(WinControl* Control, int Border)
     : Control(Control, Border, 0, 0)
-{}
+{
+}
 
 Control::Control(WinControl* Control, int MinWidth, int MinHeight)
     : Control(Control, 0, MinWidth, MinHeight)
-{}
+{
+}
 
 Control::Control(WinControl* Control, int Border, int MinWidth, int MinHeight)
     : _Control(Control)
     , _Border(Border)
     , _MinWidth(MinWidth)
     , _MinHeight(MinHeight)
-{}
+{
+}
 
 Control::operator Base::Pointer()
 {
@@ -729,7 +744,8 @@ VertFix1::VertFix1(int Border, int SpliterSize, Base::Pointer Placement1, Base::
     , _SpliterSize(SpliterSize)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 VertFix1::operator Base::Pointer()
 {
@@ -741,7 +757,8 @@ VertFix2::VertFix2(int Border, int SpliterSize, Base::Pointer Placement1, Base::
     , _SpliterSize(SpliterSize)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 VertFix2::operator Base::Pointer()
 {
@@ -754,7 +771,8 @@ VertScale::VertScale(int Border, int SpliterSize, double Scale, Base::Pointer Pl
     , _Scale(Scale)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 VertScale::operator Base::Pointer()
 {
@@ -766,7 +784,8 @@ HorzFix1::HorzFix1(int Border, int SpliterSize, Base::Pointer Placement1, Base::
     , _SpliterSize(SpliterSize)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 HorzFix1::operator Base::Pointer()
 {
@@ -778,7 +797,8 @@ HorzFix2::HorzFix2(int Border, int SpliterSize, Base::Pointer Placement1, Base::
     , _SpliterSize(SpliterSize)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 HorzFix2::operator Base::Pointer()
 {
@@ -791,7 +811,8 @@ HorzScale::HorzScale(int Border, int SpliterSize, double Scale, Base::Pointer Pl
     , _Scale(Scale)
     , _Placement1(Placement1)
     , _Placement2(Placement2)
-{}
+{
+}
 
 HorzScale::operator Base::Pointer()
 {
@@ -840,7 +861,7 @@ bool WinControl::_CreateWindow(DWORD ExStyle, DWORD Style, const wchar_t * Class
             NULL);
         if (_Handle != NULL)
         {
-            GetApplication()->_Controls.insert({_Handle, std::shared_ptr<WinControl>(this)});
+            GetApplication()->_Controls.insert({_Handle, this});
             if (ClassName != GetDefaultClass()->GetName())
             {
                 SetWindowSubclass(_Handle, SubclassProc, 0, 0);
@@ -939,7 +960,7 @@ void WinControl::Destroy()
     if (_Handle)
     {
         GetApplication()->_Controls.erase(_Handle);
-        _Handle = nullptr;
+        _Handle = 0;
     }
 }
 
@@ -966,16 +987,59 @@ void WinControl::GetWindowPosSize(int& Left, int& Top, int& Width, int& Height)
 }
 
 WinControl::WinControl()
-    : _Handle(NULL)
+    : _Handle(0)
     , _MouseEntered(false)
     , _HoverOnce(true)
     , _EnableHover(false)
     , _HoverTime(-1)
     , _LastX(-1)
     , _LastY(-1)
-    , _Parent(0)
+    , _Parent(nullptr)
     , _SubClassed(false)
 {
+}
+
+WinControl::WinControl(DWORD exStyle, DWORD style, const wchar_t* className, WinContainer* parent)
+    : _Handle(CreateWindowExW(
+        exStyle, className, L"", style,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        parent ? parent->GetHandle() : NULL,
+        NULL,
+        GetApplication()->GetInstance(),
+        NULL))
+    , _MouseEntered(false)
+    , _HoverOnce(true)
+    , _EnableHover(false)
+    , _HoverTime(-1)
+    , _LastX(-1)
+    , _LastY(-1)
+    , _Parent(parent)
+    , _Font(WinFont::FromWindow(_Handle, L"Î¢ÈíÑÅºÚ", 10))
+    , _SubClassed(false)
+{
+    if (_Handle != NULL)
+    {
+        GetApplication()->_Controls.insert({_Handle, this});
+        if (className != GetDefaultClass()->GetName())
+        {
+            SetWindowSubclass(_Handle, SubclassProc, 0, 0);
+        }
+        if (parent)
+        {
+            if (::SetParent(_Handle, parent->GetHandle()) != NULL)
+            {
+                _Parent->RegisterChild(this);
+                SetWindowPos(_Parent->GetHandle(), NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+        }
+        //set font
+        SendMessageW(_Handle, WM_SETFONT, reinterpret_cast<WPARAM>(_Font->GetHandle()), TRUE);
+    }
+    else
+    {
+        DWORD Error = GetLastError();
+        assert(0);
+    }
 }
 
 WinControl::~WinControl()
@@ -1163,7 +1227,7 @@ LRESULT WinControl::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam,
     case WM_COMMAND:
         if (lParam != 0)
         {
-            std::shared_ptr<WinControl> Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
+            WinControl* Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
             if (Control)
             {
                 Result = Control->ProcessMessage(WM_COMMAND_DISPATCHED, wParam, lParam, CallDefaultProc);
@@ -1173,7 +1237,7 @@ LRESULT WinControl::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam,
     case WM_NOTIFY:
     {
         NMHDR* hdr = reinterpret_cast<NMHDR*>(lParam);
-        std::shared_ptr<WinControl> Control = GetApplication()->GetControl(hdr->hwndFrom);
+        WinControl* Control = GetApplication()->GetControl(hdr->hwndFrom);
         if (Control)
         {
             Result = Control->ProcessMessage(WM_NOTIFY_DISPATCHED, wParam, lParam, CallDefaultProc);
@@ -1182,7 +1246,7 @@ LRESULT WinControl::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam,
     }
     case WM_VSCROLL:
     {
-        std::shared_ptr<WinControl> Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
+        WinControl* Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
         if (Control)
         {
             Result = Control->ProcessMessage(WM_VSCROLL_DISPATCHED, wParam, lParam, CallDefaultProc);
@@ -1191,7 +1255,7 @@ LRESULT WinControl::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam,
     }
     case WM_HSCROLL:
     {
-        std::shared_ptr<WinControl> Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
+        WinControl* Control = GetApplication()->GetControl(reinterpret_cast<HWND>(lParam));
         if (Control)
         {
             Result = Control->ProcessMessage(WM_HSCROLL_DISPATCHED, wParam, lParam, CallDefaultProc);
@@ -1325,20 +1389,28 @@ void WinContainer::Destroy()
     if (_Placement)
     {
         delete _Placement;
-        _Placement = 0;
+        _Placement = nullptr;
     }
-    for (WinControl* Control : _Controls)
+    while (_Controls.size())
     {
-        delete Control;
-        Control = nullptr;
+        delete *(_Controls.end() - 1);
     }
     WinControl::Destroy();
 }
 
 WinContainer::WinContainer()
-    : _Controls()
-    , _Placement(0)
-{}
+    : WinControl()
+    , _Controls()
+    , _Placement(nullptr)
+{
+}
+
+pl::windows::WinContainer::WinContainer(DWORD exStyle, DWORD style, const wchar_t * className, WinContainer * parent)
+    : WinControl(exStyle, style, className, parent)
+    , _Controls()
+    , _Placement(nullptr)
+{
+}
 
 WinContainer::~WinContainer()
 {
@@ -1403,10 +1475,9 @@ void WinForm::CreateForm()
             WS_EX_APPWINDOW | WS_EX_CONTROLPARENT,
             WS_BORDER | WS_CAPTION | WS_SIZEBOX | WS_SYSMENU | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_MINIMIZEBOX,
             GetDefaultClass()->GetName().c_str(),
-            0)
-            )
+            nullptr))
         {
-            _IsMainForm = GetApplication()->RegisterForm(std::shared_ptr<WinForm>(this));
+            _IsMainForm = GetApplication()->RegisterForm(this);
             InitializeComponents();
             OnCreate(this);
         }
@@ -1419,7 +1490,8 @@ void WinForm::CreateForm()
 }
 
 WinForm::WinForm(bool Create)
-    : _IsMainForm(false)
+    : WinContainer()
+    , _IsMainForm(false)
     , _Created(false)
     , _HotKeys()
     , _TimerList()
@@ -1433,6 +1505,25 @@ WinForm::WinForm(bool Create)
     {
         CreateForm();
     }
+}
+
+WinForm::WinForm()
+     : WinContainer(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT,
+                   WS_BORDER | WS_CAPTION | WS_SIZEBOX | WS_SYSMENU | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_MINIMIZEBOX,
+                   GetDefaultClass()->GetName().c_str(),
+                   nullptr)
+    , _IsMainForm(GetApplication()->RegisterForm(this))
+    , _Created(true)
+    , _HotKeys()
+    , _TimerList()
+    , _MenuList()
+    , _FormMenu(nullptr)
+    , _MenuItemMap()
+    , _UsedMenuItemHandle(1)
+    , _FreeMenuItemHandles()
+{
+    InitializeComponents();
+    OnCreate(this);
 }
 
 WinForm::~WinForm()
@@ -1720,7 +1811,8 @@ WinTimer::WinTimer(WinForm* Owner)
     , _Handle(Owner->RegisterOwned(this))
     , _Interval(1000)
     , _Enabled(false)
-{}
+{
+}
 
 WinTimer::~WinTimer()
 {
@@ -1816,7 +1908,8 @@ void WinImageList::Replace(int Index, WinBitmap::Pointer Bitmap)
 /*WinMenu*/
 
 void WinMenu::ItemChanged()
-{}
+{
+}
 
 WinMenu::WinMenu(WinForm* Owner)
     : _Handle(0)
@@ -2048,7 +2141,8 @@ WinFormMenu::WinFormMenu(WinForm* Owner)
 }
 
 WinFormMenu::~WinFormMenu()
-{}
+{
+}
 
 WinPopupMenu::WinPopupMenu(WinForm* Owner)
     : WinMenu(Owner)

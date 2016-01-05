@@ -20,21 +20,23 @@ protected:
         /*初始化控件*/
         txtRegex = new WinEdit(this, false);
         txtRegex2 = new WinEdit(this, false);
+
         ApplyPlacement(
             HorzScale(10, 100, 0.5,
                       Control(txtRegex),
                       Control(txtRegex2)
                       )
             );
+
         /*设置控件事件*/
-        txtRegex->OnChanged.Bind(this, &RegForm::txtRegex_OnChanged);
-        txtRegex->OnKeyDown.Bind(this, &RegForm::txtRegex_OnKeyDown);
+        txtRegex->OnChanged += NotifyEvent::Handler(this, &RegForm::txtRegex_OnChanged);
+        txtRegex->OnKeyDown += KeyEvent::Handler(this, &RegForm::txtRegex_OnKeyDown);
     }
 
 
     void txtRegex_OnChanged(Object* Sender)
     {
-
+        
     }
 
     void txtRegex_OnKeyDown(Object* Sender, KeyStruct KeyStruct)
@@ -43,16 +45,20 @@ protected:
     }
 
 public:
-    RegForm():WinForm(true)
+    RegForm()
+        : WinForm()
     {
         SetText(WindowTitle);
         InitControls();
+        //InitControls();
         MoveCenter();
     }
 };
 
 void main()
 {
-    (new RegForm())->ShowMaximized();
+    RegForm* form = new RegForm();
+    form->ShowMaximized();
     GetApplication()->Run();
+    //delete form;
 }

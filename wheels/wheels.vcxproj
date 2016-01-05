@@ -148,6 +148,9 @@
   <ItemGroup>
     <ClInclude Include="base.h" />
     <ClInclude Include="Event.h" />
+    <ClInclude Include="Function.h" />
+    <ClInclude Include="Pointer.h" />
+    <ClInclude Include="Template.h" />
     <ClInclude Include="WinButton.h" />
     <ClInclude Include="WinClass.h" />
     <ClInclude Include="WinCommDlg.h" />

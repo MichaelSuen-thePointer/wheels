@@ -168,9 +168,9 @@ enum class ListViewSortResult
     Larger, Equal, Smaller
 };
 
-DEFINE_VOID_EVENT(ListViewItemEvent, (Sender, ItemIndex, SubItemIndex), (Object* Sender, int ItemIndex, int SubItemIntex))
-DEFINE_VOID_EVENT(ListViewEditEvent, (Sender, ItemIndex, Accept, Text), (Object* Sender, int ItemIndex, bool& Accept, const std::wstring& Text))
-DEFINE_VOID_EVENT(ListViewSortEvent, (Sender, Index1, Index2, Param, Result), (Object* Sender, int Index1, int Index2, void* Param, ListViewSortResult& Result))
+using ListViewItemEvent = Event<Object*, int, int>;
+using ListViewEditEvent = Event<Object*, int, bool&, const std::wstring&>;
+using ListViewSortEvent = Event<Object*, int, int, void*, ListViewSortResult&>;
 
 class WinListView: public WinControl
 {
@@ -397,9 +397,9 @@ public:
     void Toggle();
 };
 
-DEFINE_VOID_EVENT(TreeViewItemEvent, (Sender, Item), (Object* Sender, WinTreeViewItem Item))
-DEFINE_VOID_EVENT(TreeViewVerifyEvent, (Sender, Item, Accept), (Object* Sender, WinTreeViewItem Item, bool& Accept))
-DEFINE_VOID_EVENT(TreeViewEditEvent, (Sender, Item, Accept, Text), (Object* Sender, WinTreeViewItem Item, bool& Accept, const std::wstring& Text))
+using TreeViewItemEvent = Event<Object*, WinTreeViewItem>;
+using TreeViewVerifyEvent = Event<Object*, WinTreeViewItem, bool&>;
+using TreeViewEditEvent = Event<Object*, WinTreeViewItem, bool&, const std::wstring&>;
 
 class WinTreeView: public WinControl
 {

@@ -73,6 +73,15 @@
     <ClInclude Include="WinView.h">
       <Filter>Windows\Commonctrl\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pointer.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Template.h">
+      <Filter>Windows\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

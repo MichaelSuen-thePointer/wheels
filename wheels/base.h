@@ -4,30 +4,28 @@
 namespace pl
 {
 
-class UnCopyable
-{
-public:
-	UnCopyable() = default;
-	virtual ~UnCopyable() = default;
-
-	UnCopyable(const UnCopyable&) = delete;
-	UnCopyable(UnCopyable&&) = delete;
-	UnCopyable& operator=(const UnCopyable&) = delete;
-	UnCopyable& operator=(UnCopyable&&) = delete;
-};
-
 class Object
 {
 public:
-	Object() = default;
-	virtual ~Object() = default;
+    ~Object() {}
 };
 
-class Interface
+class NotCopyable
+{
+protected:
+    NotCopyable() {}
+    ~NotCopyable() {}
+private:
+    NotCopyable(const NotCopyable&) = delete;
+    NotCopyable(NotCopyable&&) = delete;
+    NotCopyable& operator=(const NotCopyable&) = delete;
+    NotCopyable& operator=(NotCopyable&&) = delete;
+};
+
+class Interface: NotCopyable
 {
 public:
-	Interface() = default;
-	virtual ~Interface() = default;
+    virtual ~Interface() {}
 };
 
 
@@ -35,14 +33,14 @@ template <typename T>
 inline
 T Max(T& a, T& b)
 {
-	return a > b ? a : b;
+    return a > b ? a : b;
 }
 
 template <typename T>
 inline
 T Min(T& a, T& b)
 {
-	return a < b ? a : b;
+    return a < b ? a : b;
 }
 
 

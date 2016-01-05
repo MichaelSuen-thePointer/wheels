@@ -81,7 +81,7 @@ bool WinApplication::ProcessMessage(bool InMessageLoop)
 	return Result;
 }
 
-bool WinApplication::RegisterForm(std::shared_ptr<WinForm> Form)
+bool WinApplication::RegisterForm(WinForm* Form)
 {
 	if (std::find(_Forms.begin(), _Forms.end(), Form) == _Forms.end())
 	{
@@ -100,7 +100,7 @@ bool WinApplication::RegisterForm(std::shared_ptr<WinForm> Form)
 
 void WinApplication::UnregisterForm(WinForm* Form)
 {
-    auto Place = std::find_if(_Forms.begin(), _Forms.end(), [=](std::shared_ptr<WinForm> form) {return form.get() == Form; });
+    auto Place = std::find(_Forms.begin(), _Forms.end(), Form);
 	if (Place != _Forms.end())
 	{
 		_Forms.erase(Place);
@@ -147,7 +147,7 @@ void WinApplication::Run()
 	}
 }
 
-std::shared_ptr<WinControl> WinApplication::GetControl(HWND Handle)
+WinControl* WinApplication::GetControl(HWND Handle)
 {
 	auto Place = _Controls.find(Handle);
 	if (Place != _Controls.end())
@@ -159,7 +159,21 @@ std::shared_ptr<WinControl> WinApplication::GetControl(HWND Handle)
 
 void WinApplication::Terminate()
 {
-
+    for (auto form : _Forms)
+    {
+        if (form != _MainForm)
+        {
+            form->DestroyForm();
+        }
+    }
+    if (_MainForm)
+    {
+        _MainForm->DestroyForm();
+    }
+    while (_Forms.size())
+    {
+        delete *(_Forms.end() - 1);
+    }
 }
 
 inline
@@ -190,7 +204,7 @@ LRESULT CALLBACK SubclassProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lPara
 {
 	bool CallDefaultProc = true;
 	LRESULT Result = 0;
-	std::shared_ptr<WinControl> Control = GetApplication()->GetControl(hWnd);
+	WinControl* Control = GetApplication()->GetControl(hWnd);
 
 	if (Control)
 	{
@@ -207,7 +221,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT Result = 0;
 	bool CallDefaultProc = true;
-	std::shared_ptr<WinControl> Control = GetApplication()->GetControl(hWnd);
+	WinControl* Control = GetApplication()->GetControl(hWnd);
 	if (Control)
 	{
 		Result = Control->ProcessMessage(uiMsg, wParam, lParam, CallDefaultProc);

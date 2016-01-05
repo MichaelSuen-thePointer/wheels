@@ -11,7 +11,7 @@ void WinApplication::DoEvents()
 }
 
 inline
-std::shared_ptr<WinForm> WinApplication::GetMainForm()
+WinForm* WinApplication::GetMainForm()
 {
 	return _MainForm;
 }

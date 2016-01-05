@@ -263,7 +263,7 @@ public:
 	void SetRaise(bool Value);
 };
 
-DEFINE_VOID_EVENT(StatusItemEvent, (Sender, Item), (Object* Sender, int Item))
+using StatusItemEvent = Event<Object*, int>;
 
 class WinStatus: public WinControl
 {
