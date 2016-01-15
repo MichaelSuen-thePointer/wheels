@@ -319,13 +319,13 @@ void WinControl::SetAcceptFiles(bool Value)
 }
 
 inline
-WinFont::Pointer WinControl::GetFont()
+WinFont::Ptr WinControl::GetFont()
 {
     return _Font;
 }
 
 inline
-void WinControl::SetFont(WinFont::Pointer Font)
+void WinControl::SetFont(WinFont::Ptr Font)
 {
     _Font = Font;
     SendMessage(_Handle, WM_SETFONT, reinterpret_cast<WPARAM>(_Font->GetHandle()), TRUE);
@@ -834,26 +834,26 @@ void WinMenuItem::SetText(const std::wstring& Text)
 }
 
 inline
-WinBitmap::Pointer WinMenuItem::GetCheckedBitmap()
+WinBitmap::Ptr WinMenuItem::GetCheckedBitmap()
 {
     return _CheckedBitmap;
 }
 
 inline
-void WinMenuItem::SetCheckedBitmap(WinBitmap::Pointer Bitmap)
+void WinMenuItem::SetCheckedBitmap(WinBitmap::Ptr Bitmap)
 {
     _CheckedBitmap = CheckBitmap(Bitmap);
     RefreshProperties();
 }
 
 inline
-WinBitmap::Pointer WinMenuItem::GetUncheckedBitmap()
+WinBitmap::Ptr WinMenuItem::GetUncheckedBitmap()
 {
     return _UncheckedBitmap;
 }
 
 inline
-void WinMenuItem::SetUncheckedBitmap(WinBitmap::Pointer Bitmap)
+void WinMenuItem::SetUncheckedBitmap(WinBitmap::Ptr Bitmap)
 {
     _UncheckedBitmap = CheckBitmap(Bitmap);
     RefreshProperties();

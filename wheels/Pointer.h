@@ -196,7 +196,7 @@ public:
 };
 
 template<typename T, typename... TArgs>
-SharedPtr<T> MakeShared(TArgs&&... args)
+SharedPtr<T> MakeShared(TArgs... args)
 {
     return new T(PerfectForward<TArgs>(args)...);
 }

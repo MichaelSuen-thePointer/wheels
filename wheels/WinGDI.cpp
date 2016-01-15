@@ -8,70 +8,70 @@ namespace windows
 {
 
 WinRegion::WinRegion(int Left, int Top, int Right, int Bottom, bool IsRectangle)
-	: _Handle(0)
+	: handle(0)
 {
 	if (IsRectangle)
 	{
-		_Handle = CreateRectRgn(Left, Top, Right, Bottom);
+		handle = CreateRectRgn(Left, Top, Right, Bottom);
 	}
 	else
 	{
-		_Handle = CreateEllipticRgn(Left, Top, Right, Bottom);
+		handle = CreateEllipticRgn(Left, Top, Right, Bottom);
 	}
 }
 
 WinRegion::WinRegion(RECT Rect, bool IsRectangle)
-	: _Handle(0)
+	: handle(0)
 {
 	if (IsRectangle)
 	{
-		_Handle = CreateRectRgnIndirect(&Rect);
+		handle = CreateRectRgnIndirect(&Rect);
 	}
 	else
 	{
-		_Handle = CreateEllipticRgnIndirect(&Rect);
+		handle = CreateEllipticRgnIndirect(&Rect);
 	}
 }
 
 WinRegion::WinRegion(int Left, int Top, int Right, int Bottom, int EllipseWidth, int EllipseHeight)
-	: _Handle(CreateRoundRectRgn(Left, Top, Right, Bottom, EllipseWidth, EllipseHeight))
+	: handle(CreateRoundRectRgn(Left, Top, Right, Bottom, EllipseWidth, EllipseHeight))
 {
 }
 
 WinRegion::WinRegion(POINT Points[], int Count, bool Alternate)
-	: _Handle(CreatePolygonRgn(Points, Count, Alternate ? ALTERNATE : WINDING))
+	: handle(CreatePolygonRgn(Points, Count, Alternate ? ALTERNATE : WINDING))
 {
 }
 
-WinRegion::WinRegion(WinRegion::Pointer Region)
-	: _Handle(CreateRectRgn(0, 0, 1, 1))
+WinRegion::WinRegion(WinRegion::Ptr Region)
+	: handle(CreateRectRgn(0, 0, 1, 1))
 {
-	CombineRgn(_Handle, Region->GetHandle(), Region->GetHandle(), RGN_COPY);
+	CombineRgn(handle, Region->GetHandle(), Region->GetHandle(), RGN_COPY);
 }
 
-WinRegion::WinRegion(WinRegion::Pointer Region1, WinRegion::Pointer Region2, int CombineMode)
-	: _Handle(CreateRectRgn(0, 0, 1, 1))
+WinRegion::WinRegion(WinRegion::Ptr Region1, WinRegion::Ptr Region2, int CombineMode)
+	: handle(CreateRectRgn(0, 0, 1, 1))
 {
-	CombineRgn(_Handle, Region1->GetHandle(), Region2->GetHandle(), CombineMode);
+	CombineRgn(handle, Region1->GetHandle(), Region2->GetHandle(), CombineMode);
 }
 
 WinRegion::WinRegion(HRGN RegionHandle)
-	: _Handle(RegionHandle)
+	: handle(RegionHandle)
 {
 }
 
 WinRegion::~WinRegion()
 {
-	DeleteObject(_Handle);
+	DeleteObject(handle);
 }
 
 WinTransform::WinTransform(XFORM Transform)
-	: _Transform(Transform)
+	: transform(Transform)
 {
 }
 
 WinTransform::WinTransform(const WinTransform& Transform)
-	: _Transform(Transform._Transform)
+	: transform(Transform.transform)
 {
 }
 
@@ -91,13 +91,13 @@ void WinMetaFileBuilder::Create(int Width, int Height)
 	Rect.bottom = (Height * iHeightMM * 100) / iHeightPels;
 
 	HDC Handle = CreateEnhMetaFileW(NULL, NULL, &Rect, L"PointerLibrary++GDI\0Enhanced Metafile\0");
-	_DC->Initialize(Handle);
+	proxyDC->Initialize(Handle);
 }
 
 WinMetaFileBuilder::WinMetaFileBuilder(int Width, int Height)
-	: _Width(Width)
-	, _Height(Height)
-	, _DC(new WinProxyDC())
+	: width(Width)
+	, height(Height)
+	, proxyDC(new WinProxyDC())
 {
 	Create(Width, Height);
 }
@@ -105,7 +105,7 @@ WinMetaFileBuilder::WinMetaFileBuilder(int Width, int Height)
 WinMetaFileBuilder::~WinMetaFileBuilder()
 {
 	Destroy();
-	delete _DC;
+	delete proxyDC;
 }
 
 void WinMetaFileBuilder::LoadFrom(WinMetaFile* File)
@@ -117,15 +117,15 @@ void WinMetaFileBuilder::LoadFrom(WinMetaFile* File)
 
 void WinMetaFileBuilder::SaveTo(WinMetaFile* File)
 {
-	HENHMETAFILE Handle = CloseEnhMetaFile(_DC->GetHandle());
-	if (File->_Handle)
+	HENHMETAFILE Handle = CloseEnhMetaFile(proxyDC->GetHandle());
+	if (File->handle)
 	{
-		DeleteEnhMetaFile(File->_Handle);
+		DeleteEnhMetaFile(File->handle);
 	}
-	File->_Handle = Handle;
-	File->_Width = _Width;
-	File->_Height = _Height;
-	Create(_Width, _Height);
+	File->handle = Handle;
+	File->width = width;
+	File->height = height;
+	Create(width, height);
 	Draw(Handle);
 }
 
@@ -139,36 +139,36 @@ void WinMetaFileBuilder::LoadFrom(const std::wstring& FileName)
 
 void WinMetaFileBuilder::SaveTo(const std::wstring& FileName)
 {
-	HENHMETAFILE Handle = CloseEnhMetaFile(_DC->GetHandle());
+	HENHMETAFILE Handle = CloseEnhMetaFile(proxyDC->GetHandle());
 	HENHMETAFILE NewHandle = CopyEnhMetaFileW(Handle, FileName.c_str());
 	DeleteEnhMetaFile(NewHandle);
-	Create(_Width, _Height);
+	Create(width, height);
 	Draw(Handle);
 	DeleteEnhMetaFile(Handle);
 }
 
 WinMetaFile::WinMetaFile(const std::wstring& FileName)
-	: _Handle(GetEnhMetaFileW(FileName.c_str()))
-	, _Width()
-	, _Height()
+	: handle(GetEnhMetaFileW(FileName.c_str()))
+	, width()
+	, height()
 {
 	ENHMETAHEADER Header;
-	GetEnhMetaFileHeader(_Handle, sizeof(Header), &Header);
-	_Width = (Header.rclFrame.right - Header.rclFrame.left)*Header.szlDevice.cx / (Header.szlMillimeters.cx * 100);
-	_Height = (Header.rclFrame.bottom - Header.rclFrame.top)*Header.szlDevice.cy / (Header.szlMillimeters.cy * 100);
+	GetEnhMetaFileHeader(handle, sizeof(Header), &Header);
+	width = (Header.rclFrame.right - Header.rclFrame.left)*Header.szlDevice.cx / (Header.szlMillimeters.cx * 100);
+	height = (Header.rclFrame.bottom - Header.rclFrame.top)*Header.szlDevice.cy / (Header.szlMillimeters.cy * 100);
 }
 
 WinMetaFile::WinMetaFile(WinMetaFileBuilder* Builder)
-	: _Handle(NULL)
-	, _Width()
-	, _Height()
+	: handle(NULL)
+	, width()
+	, height()
 {
 	Builder->SaveTo(this);
 }
 
 WinMetaFile::~WinMetaFile()
 {
-	DeleteEnhMetaFile(_Handle);
+	DeleteEnhMetaFile(handle);
 }
 
 int WinBitmap::GetLineBytes(int Width, BitmapBits BB)
@@ -223,7 +223,7 @@ HBITMAP WinBitmap::CreateDIB(int Width, int Height, BitmapBits Bits, BYTE**& Sca
 	Info->bmiColors[1].rgbReserved = 255;
 
 	BYTE* FirstLine = 0;
-	HBITMAP Handle = CreateDIBSection(_DC->GetHandle(), Info, DIB_RGB_COLORS, reinterpret_cast<void**>(&FirstLine), NULL, 0);
+	HBITMAP Handle = CreateDIBSection(imageDC->GetHandle(), Info, DIB_RGB_COLORS, reinterpret_cast<void**>(&FirstLine), NULL, 0);
 	ScanLines = new BYTE*[Height];
 	int LineBytes = GetLineBytes(Width, Bits);
 	for (int i = 0; i < Height; i++)
@@ -236,21 +236,21 @@ HBITMAP WinBitmap::CreateDIB(int Width, int Height, BitmapBits Bits, BYTE**& Sca
 
 void WinBitmap::Constuctor(int Width, int Height, BitmapBits Bits, bool DIBSection)
 {
-	_DC = new WinImageDC();
+	imageDC = new WinImageDC();
 	if (DIBSection)
 	{
-		_Handle = CreateDIB(Width, Height, Bits, _ScanLines);
+		handle = CreateDIB(Width, Height, Bits, scanLines);
 	}
 	else
 	{
-		_Handle = CreateDDB(Width, Height, Bits);
-		_ScanLines = 0;
+		handle = CreateDDB(Width, Height, Bits);
+		scanLines = 0;
 	}
-	_Width = Width;
-	_Height = Height;
-	_Bits = Bits;
-	_AlphaChannelBuilt = false;
-	HGDIOBJ Object = SelectObject(_DC->GetHandle(), _Handle);
+	width = Width;
+	height = Height;
+	bits = Bits;
+	hasAlphaChannelBuilt = false;
+	HGDIOBJ Object = SelectObject(imageDC->GetHandle(), handle);
 	if (Object)
 	{
 		DeleteObject(Object);
@@ -258,25 +258,25 @@ void WinBitmap::Constuctor(int Width, int Height, BitmapBits Bits, bool DIBSecti
 }
 
 WinBitmap::WinBitmap(int Width, int Height, BitmapBits Bits, bool DIBSections)
-	: _Bits(Bits)
-	, _Width()
-	, _Height()
-	, _DC(nullptr)
-	, _Handle(0)
-	, _ScanLines(nullptr)
-	, _AlphaChannelBuilt(false)
+	: bits(Bits)
+	, width()
+	, height()
+	, imageDC(nullptr)
+	, handle(0)
+	, scanLines(nullptr)
+	, hasAlphaChannelBuilt(false)
 {
 	Constuctor(Width, Height, Bits, DIBSections);
 }
 
 WinBitmap::WinBitmap(const std::wstring& FileName, bool Use32Bits, bool DIBSections)
-	: _Bits(Use32Bits ? BitmapBits::Bit32 : BitmapBits::Bit24)
-	, _Width()
-	, _Height()
-	, _DC(nullptr)
-	, _Handle(0)
-	, _ScanLines(nullptr)
-	, _AlphaChannelBuilt(false)
+	: bits(Use32Bits ? BitmapBits::Bit32 : BitmapBits::Bit24)
+	, width()
+	, height()
+	, imageDC(nullptr)
+	, handle(0)
+	, scanLines(nullptr)
+	, hasAlphaChannelBuilt(false)
 {
 	HBITMAP TempBmp = static_cast<HBITMAP>(LoadImageW(NULL, FileName.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
 	HDC TempDC = CreateCompatibleDC(NULL);
@@ -285,8 +285,8 @@ WinBitmap::WinBitmap(const std::wstring& FileName, bool Use32Bits, bool DIBSecti
 	GetObjectW(TempBmp, sizeof(TempRec), &TempRec);
 	DeleteObject(SelectObject(TempDC, TempBmp));
 
-	Constuctor(TempRec.bmWidth, TempRec.bmHeight, _Bits, DIBSections);
-	BitBlt(_DC->GetHandle(), 0, 0, TempRec.bmWidth, TempRec.bmHeight, TempDC, 0, 0, SRCCOPY);
+	Constuctor(TempRec.bmWidth, TempRec.bmHeight, bits, DIBSections);
+	BitBlt(imageDC->GetHandle(), 0, 0, TempRec.bmWidth, TempRec.bmHeight, TempDC, 0, 0, SRCCOPY);
 
 	DeleteObject(TempDC);
 	DeleteObject(TempBmp);
@@ -294,35 +294,35 @@ WinBitmap::WinBitmap(const std::wstring& FileName, bool Use32Bits, bool DIBSecti
 
 WinBitmap::~WinBitmap()
 {
-	if (_ScanLines)
+	if (scanLines)
 	{
-		delete[] _ScanLines;
+		delete[] scanLines;
 	}
-	if (_Handle)
+	if (handle)
 	{
-		DeleteObject(_Handle);
+		DeleteObject(handle);
 	}
-	delete _DC;
+	delete imageDC;
 }
 
 void WinBitmap::SaveToFile(const std::wstring& FileName)
 {
-	if (_ScanLines)
+	if (scanLines)
 	{
 		BITMAPFILEHEADER Header1;
 		BITMAPV5HEADER Header2;
 		Header1.bfType = 'M' * 256 + 'B';
-		Header1.bfSize = sizeof(Header1) + sizeof(Header2) + GetLineBytes()*_Height;
+		Header1.bfSize = sizeof(Header1) + sizeof(Header2) + GetLineBytes()*height;
 		Header1.bfReserved1 = 0;
 		Header1.bfReserved2 = 0;
 		Header1.bfOffBits = sizeof(Header2) + sizeof(Header1);
 
 		memset(&Header2, 0, sizeof(Header2));
 		Header2.bV5Size = sizeof(Header2);
-		Header2.bV5Width = _Width;
-		Header2.bV5Height = -_Height; //top-bottom
+		Header2.bV5Width = width;
+		Header2.bV5Height = -height; //top-bottom
 		Header2.bV5Planes = 1;
-		Header2.bV5BitCount = GetBitsFromBB(_Bits);
+		Header2.bV5BitCount = GetBitsFromBB(bits);
 		Header2.bV5Compression = BI_RGB;
 		Header2.bV5CSType = LCS_sRGB;
 		Header2.bV5Intent = LCS_GM_GRAPHICS;
@@ -330,30 +330,30 @@ void WinBitmap::SaveToFile(const std::wstring& FileName)
 		std::ofstream Output(FileName, std::ofstream::binary);
 		Output.write(reinterpret_cast<char*>(&Header1), sizeof(Header1));
 		Output.write(reinterpret_cast<char*>(&Header2), sizeof(Header2));
-		for (int i = 0; i < _Height; i++)
+		for (int i = 0; i < height; i++)
 		{
-			Output.write(reinterpret_cast<char*>(_ScanLines[i]), GetLineBytes());
+			Output.write(reinterpret_cast<char*>(scanLines[i]), GetLineBytes());
 		}
 	}
 	else
 	{
-		WinBitmap Temp(_Width, _Height, _Bits, true);
-		Temp.GetWinDC()->Copy(0, 0, _Width, _Height, _DC, 0, 0);
+		WinBitmap Temp(width, height, bits, true);
+		Temp.GetWinDC()->Copy(0, 0, width, height, imageDC, 0, 0);
 		Temp.SaveToFile(FileName);
 	}
 }
 
 void WinBitmap::BuildAlphaChannel()
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
-	_AlphaChannelBuilt = true;
-	for (int i = 0; i < _Height; i++)
+	hasAlphaChannelBuilt = true;
+	for (int i = 0; i < height; i++)
 	{
-		BYTE* Colors = _ScanLines[i];
-		int j = _Width;
+		BYTE* Colors = scanLines[i];
+		int j = width;
 		while (j--)
 		{
 			BYTE Alpha = Colors[3];
@@ -368,16 +368,16 @@ void WinBitmap::BuildAlphaChannel()
 
 void WinBitmap::GenerateTrans(COLORREF Color)
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
-	for (int i = 0; i < _Height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int i = 0; i < _Height; i++)
+		for (int i = 0; i < height; i++)
 		{
-			COLORREF* Colors = reinterpret_cast<COLORREF*>(_ScanLines[i]);
-			int j = _Width;
+			COLORREF* Colors = reinterpret_cast<COLORREF*>(scanLines[i]);
+			int j = width;
 			while (j--)
 			{
 				COLORREF Dest = *Colors & 0x00FFFFFF;
@@ -391,14 +391,14 @@ void WinBitmap::GenerateTrans(COLORREF Color)
 
 void WinBitmap::GenerateAlpha(BYTE Alpha)
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
-	for (int i = 0; i < _Height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		BYTE* Colors = _ScanLines[i];
-		int j = _Width;
+		BYTE* Colors = scanLines[i];
+		int j = width;
 		while (j--)
 		{
 			Colors[3] = Alpha;
@@ -410,15 +410,15 @@ void WinBitmap::GenerateAlpha(BYTE Alpha)
 
 void WinBitmap::GenerateTransAlpha(COLORREF Color, BYTE Alpha)
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
 	COLORREF A = Alpha << 24;
-	for (int i = 0; i < _Height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		COLORREF* Colors = reinterpret_cast<COLORREF*>(_ScanLines[i]);
-		int j = _Width;
+		COLORREF* Colors = reinterpret_cast<COLORREF*>(scanLines[i]);
+		int j = width;
 		while (j--)
 		{
 			COLORREF Dest = *Colors & 0x00FFFFFF;
@@ -431,14 +431,14 @@ void WinBitmap::GenerateTransAlpha(COLORREF Color, BYTE Alpha)
 
 void WinBitmap::GenerateLuminance()
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
-	for (int i = 0; i < _Height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		COLORREF* Colors = reinterpret_cast<COLORREF*>(_ScanLines[i]);
-		int j = _Width;
+		COLORREF* Colors = reinterpret_cast<COLORREF*>(scanLines[i]);
+		int j = width;
 		while (j--)
 		{
 			COLORREF Dest = *Colors & 0x00FFFFFF;
@@ -458,14 +458,14 @@ void WinBitmap::GenerateGrayLevel()
 
 void WinBitmap::Generate(std::function<BYTE(COLORREF)> Function)
 {
-	if (!(CanBuildAlphaChannel() && !_AlphaChannelBuilt))
+	if (!(CanBuildAlphaChannel() && !hasAlphaChannelBuilt))
 	{
 		return;
 	}
-	for (int i = 0; i < _Height; i++)
+	for (int i = 0; i < height; i++)
 	{
-		COLORREF* Colors = reinterpret_cast<COLORREF*>(_ScanLines[i]);
-		int j = _Width;
+		COLORREF* Colors = reinterpret_cast<COLORREF*>(scanLines[i]);
+		int j = width;
 		while (j--)
 		{
 			COLORREF Dest = *Colors & 0x00FFFFFF;
@@ -478,516 +478,516 @@ void WinBitmap::Generate(std::function<BYTE(COLORREF)> Function)
 /*WinBrush*/
 
 WinBrush::WinBrush(COLORREF Color)
-	: _DIBMemory(nullptr)
-	, _Handle(CreateSolidBrush(Color))
+	: dibMemory(nullptr)
+	, handle(CreateSolidBrush(Color))
 {
 }
 
 WinBrush::WinBrush(int Hatch, COLORREF Color)
-	: _DIBMemory(nullptr)
-	, _Handle(CreateHatchBrush(Hatch, Color))
+	: dibMemory(nullptr)
+	, handle(CreateHatchBrush(Hatch, Color))
 {
 }
 
-WinBrush::WinBrush(WinBitmap::Pointer DIB)
+WinBrush::WinBrush(WinBitmap::Ptr DIB)
 {
 	WinBitmap Temp(DIB->GetWidth(), DIB->GetHeight(), WinBitmap::BitmapBits::Bit24, true);
 	Temp.GetWinDC()->Draw(0, 0, DIB);
 	int HeaderSize = sizeof(BITMAPINFOHEADER);
-	_DIBMemory = new BYTE[HeaderSize + DIB->GetHeight() * DIB->GetLineBytes()];
-	Temp.FillCompatibleHeader(reinterpret_cast<BITMAPINFOHEADER*>(_DIBMemory));
-	memcpy(_DIBMemory + HeaderSize, DIB->GetScanLines()[0], DIB->GetHeight()*DIB->GetLineBytes());
+	dibMemory = new BYTE[HeaderSize + DIB->GetHeight() * DIB->GetLineBytes()];
+	Temp.FillCompatibleHeader(reinterpret_cast<BITMAPINFOHEADER*>(dibMemory));
+	memcpy(dibMemory + HeaderSize, DIB->GetScanLines()[0], DIB->GetHeight()*DIB->GetLineBytes());
 
-	_Handle = CreateDIBPatternBrushPt(_DIBMemory, DIB_RGB_COLORS);
+	handle = CreateDIBPatternBrushPt(dibMemory, DIB_RGB_COLORS);
 }
 
 WinBrush::~WinBrush()
 {
-	DeleteObject(_Handle);
-	if (_DIBMemory)
+	DeleteObject(handle);
+	if (dibMemory)
 	{
-		delete[] _DIBMemory;
+		delete[] dibMemory;
 	}
 }
 
 WinPen::WinPen(int Style, int Width, COLORREF Color)
-	: _Handle(CreatePen(Style, Width, Color))
-	, _DIBMemory(nullptr)
+	: handle(CreatePen(Style, Width, Color))
+	, dibMemory(nullptr)
 {
 }
 
 WinPen::WinPen(int Style, int EndCap, int Join, int Width, COLORREF Color)
-	: _Handle(0)
-	, _DIBMemory(nullptr)
+	: handle(0)
+	, dibMemory(nullptr)
 {
 	LOGBRUSH Brush;
 	Brush.lbColor = Color;
 	Brush.lbStyle = BS_SOLID;
 	Brush.lbHatch = 0;
-	_Handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
+	handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
 }
 
 WinPen::WinPen(int Style, int EndCap, int Join, int Hatch, int Width, COLORREF Color)
-	: _Handle(0)
-	, _DIBMemory(nullptr)
+	: handle(0)
+	, dibMemory(nullptr)
 {
-	_DIBMemory = 0;
+	dibMemory = 0;
 	LOGBRUSH Brush;
 	Brush.lbColor = Color;
 	Brush.lbStyle = BS_HATCHED;
 	Brush.lbHatch = Hatch;
-	_Handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
+	handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
 }
 
-WinPen::WinPen(WinBitmap::Pointer DIB, int Style, int EndCap, int Join, int Width)
-	: _Handle(0)
-	, _DIBMemory(nullptr)
+WinPen::WinPen(WinBitmap::Ptr DIB, int Style, int EndCap, int Join, int Width)
+	: handle(0)
+	, dibMemory(nullptr)
 {
 	WinBitmap Temp(DIB->GetWidth(), DIB->GetHeight(), WinBitmap::BitmapBits::Bit24, true);
 	Temp.GetWinDC()->Draw(0, 0, DIB);
 	int HeaderSize = sizeof(BITMAPINFOHEADER);
-	_DIBMemory = new BYTE[HeaderSize + DIB->GetHeight() * DIB->GetLineBytes()];
-	Temp.FillCompatibleHeader(reinterpret_cast<BITMAPINFOHEADER*>(_DIBMemory));
-	memcpy(_DIBMemory + HeaderSize, DIB->GetScanLines()[0], DIB->GetHeight() * DIB->GetLineBytes());
+	dibMemory = new BYTE[HeaderSize + DIB->GetHeight() * DIB->GetLineBytes()];
+	Temp.FillCompatibleHeader(reinterpret_cast<BITMAPINFOHEADER*>(dibMemory));
+	memcpy(dibMemory + HeaderSize, DIB->GetScanLines()[0], DIB->GetHeight() * DIB->GetLineBytes());
 
 	LOGBRUSH Brush;
 	Brush.lbColor = RGB(0, 0, 0);
 	Brush.lbStyle = BS_DIBPATTERNPT;
-	Brush.lbHatch = reinterpret_cast<LONG>(_DIBMemory);
-	_Handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
+	Brush.lbHatch = reinterpret_cast<LONG>(dibMemory);
+	handle = ExtCreatePen(PS_GEOMETRIC | Style | EndCap | Join, Width, &Brush, 0, 0);
 }
 
 WinPen::~WinPen()
 {
-	DeleteObject(_Handle);
-	if (_DIBMemory)
+	DeleteObject(handle);
+	if (dibMemory)
 	{
-		delete[] _DIBMemory;
+		delete[] dibMemory;
 	}
 }
 
 WinFont::WinFont(const std::wstring& Name, int Height, int Width, int Escapement, int Orientation, int Weight,
 				 bool Italic, bool Underline, bool StrikeOut, bool Antianalise)
-	: _FontInfo()
-	, _Handle(0)
+	: fontInfo()
+	, handle(0)
 {
-	_FontInfo.lfHeight = Height;
-	_FontInfo.lfWidth = Width;
-	_FontInfo.lfEscapement = Escapement;
-	_FontInfo.lfOrientation = Orientation;
-	_FontInfo.lfWeight = Weight;
-	_FontInfo.lfItalic = Italic ? TRUE : FALSE;
-	_FontInfo.lfUnderline = Underline ? TRUE : FALSE;
-	_FontInfo.lfStrikeOut = StrikeOut ? TRUE : FALSE;
-	_FontInfo.lfCharSet = DEFAULT_CHARSET;
-	_FontInfo.lfOutPrecision = OUT_DEFAULT_PRECIS;
-	_FontInfo.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-	_FontInfo.lfQuality = Antianalise ? CLEARTYPE_QUALITY : NONANTIALIASED_QUALITY;
-	_FontInfo.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-	wcsncpy_s(_FontInfo.lfFaceName, Name.c_str(), LF_FACESIZE - 1);
+	fontInfo.lfHeight = Height;
+	fontInfo.lfWidth = Width;
+	fontInfo.lfEscapement = Escapement;
+	fontInfo.lfOrientation = Orientation;
+	fontInfo.lfWeight = Weight;
+	fontInfo.lfItalic = Italic ? TRUE : FALSE;
+	fontInfo.lfUnderline = Underline ? TRUE : FALSE;
+	fontInfo.lfStrikeOut = StrikeOut ? TRUE : FALSE;
+	fontInfo.lfCharSet = DEFAULT_CHARSET;
+	fontInfo.lfOutPrecision = OUT_DEFAULT_PRECIS;
+	fontInfo.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+	fontInfo.lfQuality = Antianalise ? CLEARTYPE_QUALITY : NONANTIALIASED_QUALITY;
+	fontInfo.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
+	wcsncpy_s(fontInfo.lfFaceName, Name.c_str(), LF_FACESIZE - 1);
 
-	_Handle = CreateFontIndirectW(&_FontInfo);
+	handle = CreateFontIndirectW(&fontInfo);
 }
 
-std::shared_ptr<WinFont> WinFont::FromWindow(HWND Handle, const wchar_t* Name, int Point)
+WinFont::Ptr WinFont::GetFontForWindow(HWND Handle, const wchar_t* Name, int Point)
 {
     HDC WindowDC = GetDC(Handle);
     int Height = MulDiv(Point, GetDeviceCaps(WindowDC, LOGPIXELSY), 72);
     ReleaseDC(Handle, WindowDC);
-    return std::make_shared<WinFont>(Name, -Height, 0, 0, 0, FW_NORMAL, false, false, false, true);
+    return MakeShared<WinFont>(Name, -Height, 0, 0, 0, FW_NORMAL, false, false, false, true);
 }
 
 WinFont::WinFont(LOGFONT* FontInfo)
-	: _FontInfo(*FontInfo)
-	, _Handle(CreateFontIndirect(&_FontInfo))
+	: fontInfo(*FontInfo)
+	, handle(CreateFontIndirect(&fontInfo))
 {
 }
 
 WinFont::~WinFont()
 {
-	DeleteObject(_Handle);
+	DeleteObject(handle);
 }
 
 /*WinDC*/
 
 void WinDC::Initialize()
 {
-	_Pen = GetApplication()->GetDefaultPen();
-	_OldPen = reinterpret_cast<HPEN>(SelectObject(_Handle, _Pen->GetHandle()));
+	pen = GetApplication()->GetDefaultPen();
+	oldPen = reinterpret_cast<HPEN>(SelectObject(handle, pen->GetHandle()));
 
-	_Brush = GetApplication()->GetDefaultBrush();
-	_OldBrush = reinterpret_cast<HBRUSH>(SelectObject(_Handle, _Brush->GetHandle()));
+	brush = GetApplication()->GetDefaultBrush();
+	oldBrush = reinterpret_cast<HBRUSH>(SelectObject(handle, brush->GetHandle()));
 
-	_Font = GetApplication()->GetDefaultFont();
-	_OldFont = reinterpret_cast<HFONT>(SelectObject(_Handle, _Font->GetHandle()));
+	font = GetApplication()->GetDefaultFont();
+	oldFont = reinterpret_cast<HFONT>(SelectObject(handle, font->GetHandle()));
 
-	SetGraphicsMode(_Handle, GM_ADVANCED);
+	SetGraphicsMode(handle, GM_ADVANCED);
 }
 
 WinDC::WinDC()
-	: _Handle(0)
-	, _OldPen(nullptr)
-	, _OldBrush(nullptr)
-	, _OldFont(nullptr)
+	: handle(0)
+	, oldPen(nullptr)
+	, oldBrush(nullptr)
+	, oldFont(nullptr)
 {
 }
 
 WinDC::~WinDC()
 {
-	SelectObject(_Handle, _OldFont);
-	SelectObject(_Handle, _OldBrush);
-	SelectObject(_Handle, _OldPen);
+	SelectObject(handle, oldFont);
+	SelectObject(handle, oldBrush);
+	SelectObject(handle, oldPen);
 }
 
-void WinDC::SetPen(WinPen::Pointer Pen)
+void WinDC::SetPen(WinPen::Ptr Pen)
 {
-	SelectObject(_Handle, Pen->GetHandle());
-	_Pen = Pen;
+	SelectObject(handle, Pen->GetHandle());
+	pen = Pen;
 }
 
-void WinDC::SetBrush(WinBrush::Pointer Brush)
+void WinDC::SetBrush(WinBrush::Ptr Brush)
 {
-	SelectObject(_Handle, Brush->GetHandle());
-	_Brush = Brush;
+	SelectObject(handle, Brush->GetHandle());
+	brush = Brush;
 }
 
-void WinDC::SetFont(WinFont::Pointer Font)
+void WinDC::SetFont(WinFont::Ptr Font)
 {
-	SelectObject(_Handle, Font->GetHandle());
-	_Font = Font;
+	SelectObject(handle, Font->GetHandle());
+	font = Font;
 }
 
 COLORREF WinDC::GetBackgroundColor()
 {
-	return GetBkColor(_Handle);
+	return GetBkColor(handle);
 }
 
 void WinDC::SetBackgroundColor(COLORREF Color)
 {
-	SetBkColor(_Handle, Color);
+	SetBkColor(handle, Color);
 }
 
 COLORREF WinDC::GetTextColor()
 {
-	return ::GetTextColor(_Handle);
+	return ::GetTextColor(handle);
 }
 
 void WinDC::SetTextColor(COLORREF Color)
 {
-	::SetTextColor(_Handle, Color);
+	::SetTextColor(handle, Color);
 }
 
 bool WinDC::GetBackgroundTransparent()
 {
-	return GetBkMode(_Handle) == TRANSPARENT;
+	return GetBkMode(handle) == TRANSPARENT;
 }
 
 void WinDC::SetBackgroundTransparent(bool Value)
 {
-	SetBkMode(_Handle, Value ? TRANSPARENT : OPAQUE);
+	SetBkMode(handle, Value ? TRANSPARENT : OPAQUE);
 }
 
 POINT WinDC::GetBrushOrigin()
 {
 	POINT Point;
-	GetBrushOrgEx(_Handle, &Point);
+	GetBrushOrgEx(handle, &Point);
 	return Point;
 }
 
 void WinDC::SetBrushOrigin(POINT Value)
 {
-	SetBrushOrgEx(_Handle, Value.x, Value.y, NULL);
+	SetBrushOrgEx(handle, Value.x, Value.y, NULL);
 }
 
 void WinDC::DrawString(int X, int Y, const std::wstring& Text)
 {
-	TextOutW(_Handle, X, Y, Text.c_str(), Text.length());
+	TextOutW(handle, X, Y, Text.c_str(), Text.length());
 }
 
 void WinDC::DrawString(int X, int Y, const std::wstring& Text, int TabWidth, int TabOriginX)
 {
-	TabbedTextOutW(_Handle, X, Y, Text.c_str(), Text.length(), 1, &TabWidth, TabOriginX);
+	TabbedTextOutW(handle, X, Y, Text.c_str(), Text.length(), 1, &TabWidth, TabOriginX);
 }
 
-void WinDC::FillRegion(WinRegion::Pointer Region)
+void WinDC::FillRegion(WinRegion::Ptr Region)
 {
-	FillRgn(_Handle, Region->GetHandle(), _Brush->GetHandle());
+	FillRgn(handle, Region->GetHandle(), brush->GetHandle());
 }
 
-void WinDC::FrameRegion(WinRegion::Pointer Region, int BlockWidth, int BlockHeight)
+void WinDC::FrameRegion(WinRegion::Ptr Region, int BlockWidth, int BlockHeight)
 {
-	FrameRgn(_Handle, Region->GetHandle(), _Brush->GetHandle(), BlockWidth, BlockHeight);
+	FrameRgn(handle, Region->GetHandle(), brush->GetHandle(), BlockWidth, BlockHeight);
 }
 
 void WinDC::MoveTo(int X, int Y)
 {
-	::MoveToEx(_Handle, X, Y, NULL);
+	::MoveToEx(handle, X, Y, NULL);
 }
 
 void WinDC::LineTo(int X, int Y)
 {
-	::LineTo(_Handle, X, Y);
+	::LineTo(handle, X, Y);
 }
 
 void WinDC::Rectangle(int Left, int Top, int  Right, int Bottom)
 {
-	::Rectangle(_Handle, Left, Top, Right, Bottom);
+	::Rectangle(handle, Left, Top, Right, Bottom);
 }
 
 void WinDC::Rectangle(RECT Rect)
 {
-	::Rectangle(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+	::Rectangle(handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
 }
 
 void WinDC::FillRect(int Left, int Top, int Right, int Bottom)
 {
 	RECT Rect{Left, Top, Right, Bottom};
-	::FillRect(_Handle, &Rect, _Brush->GetHandle());
+	::FillRect(handle, &Rect, brush->GetHandle());
 }
 
 void WinDC::FillRect(RECT Rect)
 {
-	::FillRect(_Handle, &Rect, _Brush->GetHandle());
+	::FillRect(handle, &Rect, brush->GetHandle());
 }
 
 void WinDC::Ellipse(int Left, int Top, int Right, int Bottom)
 {
-	::Ellipse(_Handle, Left, Top, Right, Bottom);
+	::Ellipse(handle, Left, Top, Right, Bottom);
 }
 
 void WinDC::Ellipse(RECT Rect)
 {
-	::Ellipse(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+	::Ellipse(handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
 }
 
 void WinDC::RoundRect(int Left, int Top, int Right, int Bottom, int EllipseWidth, int EllipseHeight)
 {
-	::RoundRect(_Handle, Left, Top, Right, Bottom, EllipseWidth, EllipseHeight);
+	::RoundRect(handle, Left, Top, Right, Bottom, EllipseWidth, EllipseHeight);
 }
 
 void WinDC::RoundRect(RECT Rect, int EllipseWidth, int EllipseHeight)
 {
-	::RoundRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom, EllipseWidth, EllipseHeight);
+	::RoundRect(handle, Rect.left, Rect.top, Rect.right, Rect.bottom, EllipseWidth, EllipseHeight);
 }
 
 void WinDC::PolyLine(const POINT Points[], int Count)
 {
-	::Polyline(_Handle, Points, Count);
+	::Polyline(handle, Points, Count);
 }
 
 void WinDC::PolyLineTo(const POINT Points[], int Count)
 {
-	::PolylineTo(_Handle, Points, Count);
+	::PolylineTo(handle, Points, Count);
 }
 
 void WinDC::Polygon(const POINT Points[], int Count)
 {
-	::Polygon(_Handle, Points, Count);
+	::Polygon(handle, Points, Count);
 }
 
 void WinDC::PolyBezier(const POINT Points[], int Count)
 {
-	::PolyBezier(_Handle, Points, Count);
+	::PolyBezier(handle, Points, Count);
 }
 
 void WinDC::PolyBezierTo(const POINT Points[], int Count)
 {
-	::PolyBezierTo(_Handle, Points, Count);
+	::PolyBezierTo(handle, Points, Count);
 }
 
 void WinDC::PolyDraw(const POINT Points[], const BYTE Actions[], int PointCount)
 {
-	::PolyDraw(_Handle, Points, Actions, PointCount);
+	::PolyDraw(handle, Points, Actions, PointCount);
 }
 
 void WinDC::Arc(RECT Bound, POINT Start, POINT End)
 {
-	::Arc(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+	::Arc(handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
 }
 
 void WinDC::Arc(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
 {
-	::Arc(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+	::Arc(handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
 }
 
 void WinDC::ArcTo(RECT Bound, POINT Start, POINT End)
 {
-	::ArcTo(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+	::ArcTo(handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
 }
 
 void WinDC::ArcTo(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
 {
-	::ArcTo(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+	::ArcTo(handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
 }
 
 void WinDC::AngleArc(int X, int Y, int Radius, float StartAngle, float SweepAngle)
 {
-	::AngleArc(_Handle, X, Y, Radius, StartAngle, SweepAngle);
+	::AngleArc(handle, X, Y, Radius, StartAngle, SweepAngle);
 }
 
 void WinDC::AngleArc(int X, int Y, int Radius, double StartAngle, double SweepAngle)
 {
-	::AngleArc(_Handle, X, Y, Radius, static_cast<float>(StartAngle), static_cast<float>(SweepAngle));
+	::AngleArc(handle, X, Y, Radius, static_cast<float>(StartAngle), static_cast<float>(SweepAngle));
 }
 
 void WinDC::Chord(RECT Bound, POINT Start, POINT End)
 {
-	::Chord(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+	::Chord(handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
 }
 
 void WinDC::Chord(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
 {
-	::Chord(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+	::Chord(handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
 }
 
 void WinDC::Pie(RECT Bound, POINT Start, POINT End)
 {
-	::Pie(_Handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
+	::Pie(handle, Bound.left, Bound.top, Bound.right, Bound.bottom, Start.x, Start.y, End.x, End.y);
 }
 
 void WinDC::Pie(int Left, int Top, int Right, int Bottom, int StartX, int StartY, int EndX, int EndY)
 {
-	::Pie(_Handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
+	::Pie(handle, Left, Top, Right, Bottom, StartX, StartY, EndX, EndY);
 }
 
 void WinDC::GradientTriangle(TRIVERTEX Vertices[], int VerticesCount, GRADIENT_TRIANGLE Triangles[], int TriangleCount)
 {
-	GradientFill(_Handle, Vertices, VerticesCount, Triangles, TriangleCount, GRADIENT_FILL_TRIANGLE);
+	GradientFill(handle, Vertices, VerticesCount, Triangles, TriangleCount, GRADIENT_FILL_TRIANGLE);
 }
 
 void WinDC::BeginPath()
 {
-	::BeginPath(_Handle);
+	::BeginPath(handle);
 }
 
 void WinDC::EndPath()
 {
-	::EndPath(_Handle);
+	::EndPath(handle);
 }
 
 void WinDC::ClosePath()
 {
-	::CloseFigure(_Handle);
+	::CloseFigure(handle);
 }
 
 void WinDC::DiscardPath()
 {
-	::AbortPath(_Handle);
+	::AbortPath(handle);
 }
 
 void WinDC::DrawPath()
 {
-	::StrokePath(_Handle);
+	::StrokePath(handle);
 }
 
 void WinDC::FillPath()
 {
-	::FillPath(_Handle);
+	::FillPath(handle);
 }
 
 void WinDC::DrawAndFillPath()
 {
-	::StrokeAndFillPath(_Handle);
+	::StrokeAndFillPath(handle);
 }
 
-WinRegion::Pointer WinDC::RegionFromPath()
+WinRegion::Ptr WinDC::RegionFromPath()
 {
-	return std::make_shared<WinRegion>(::PathToRegion(_Handle));
+	return MakeShared<WinRegion>(::PathToRegion(handle));
 }
 
 bool WinDC::PointInClip(POINT Point)
 {
-	return PtVisible(_Handle, Point.x, Point.y) == TRUE;
+	return PtVisible(handle, Point.x, Point.y) == TRUE;
 }
 
 bool WinDC::RectangleInClip(RECT Rect)
 {
-	return RectVisible(_Handle, &Rect) == TRUE;
+	return RectVisible(handle, &Rect) == TRUE;
 }
 
 void WinDC::ClipPath(int CombineMode)
 {
-	SelectClipPath(_Handle, CombineMode);
+	SelectClipPath(handle, CombineMode);
 }
 
-void WinDC::ClipRegion(WinRegion::Pointer Region)
+void WinDC::ClipRegion(WinRegion::Ptr Region)
 {
-	SelectClipRgn(_Handle, Region->GetHandle());
+	SelectClipRgn(handle, Region->GetHandle());
 }
 
 void WinDC::RemoveClip()
 {
-	SelectClipRgn(_Handle, NULL);
+	SelectClipRgn(handle, NULL);
 }
 
 void WinDC::MoveClip(int OffsetX, int OffsetY)
 {
-	OffsetClipRgn(_Handle, OffsetX, OffsetY);
+	OffsetClipRgn(handle, OffsetX, OffsetY);
 }
 
-void WinDC::CombineClip(WinRegion::Pointer Region, int CombineMode)
+void WinDC::CombineClip(WinRegion::Ptr Region, int CombineMode)
 {
-	ExtSelectClipRgn(_Handle, Region->GetHandle(), CombineMode);
+	ExtSelectClipRgn(handle, Region->GetHandle(), CombineMode);
 }
 
 void WinDC::IntersetClipRect(RECT Rect)
 {
-	::IntersectClipRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+	::IntersectClipRect(handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
 }
 
 void WinDC::ExcludeClipRect(RECT Rect)
 {
-	::ExcludeClipRect(_Handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
+	::ExcludeClipRect(handle, Rect.left, Rect.top, Rect.right, Rect.bottom);
 }
 
-WinRegion::Pointer WinDC::GetClipRegion()
+WinRegion::Ptr WinDC::GetClipRegion()
 {
 	HRGN Handle = CreateRectRgn(0, 0, 1, 1);
-	GetClipRgn(_Handle, Handle);
-	return std::make_shared<WinRegion>(Handle);
+	GetClipRgn(handle, Handle);
+	return MakeShared<WinRegion>(Handle);
 }
 
 RECT WinDC::GetClipBoundRect()
 {
 	RECT Rect;
-	GetClipBox(_Handle, &Rect);
+	GetClipBox(handle, &Rect);
 	return Rect;
 }
 
 WinTransform WinDC::GetTransform()
 {
 	XFORM Transform;
-	GetWorldTransform(_Handle, &Transform);
+	GetWorldTransform(handle, &Transform);
 	return Transform;
 }
 
 void WinDC::SetTransform(const WinTransform& Transform)
 {
-	SetWorldTransform(_Handle, Transform.GetHandle());
+	SetWorldTransform(handle, Transform.GetHandle());
 }
 
 void WinDC::Copy(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, DWORD DrawROP)
 {
 	HDC SourceHandle = Source ? Source->GetHandle() : 0;
-	BitBlt(_Handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, DrawROP);
+	BitBlt(handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, DrawROP);
 }
 
 void WinDC::Copy(RECT dstRect, WinDC* Source, POINT srcPos, DWORD DrawROP)
 {
 	HDC SourceHandle = Source ? Source->GetHandle() : 0;
-	BitBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top, SourceHandle, srcPos.x, srcPos.y, DrawROP);
+	BitBlt(handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top, SourceHandle, srcPos.x, srcPos.y, DrawROP);
 }
 
 void WinDC::Copy(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, int srcW, int srcH, DWORD DrawROP)
 {
 	HDC SourceHandle = Source ? Source->GetHandle() : 0;
-	StretchBlt(_Handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, srcW, srcH, DrawROP);
+	StretchBlt(handle, dstX, dstY, dstW, dstH, SourceHandle, srcX, srcY, srcW, srcH, DrawROP);
 }
 
 void WinDC::Copy(RECT dstRect, WinDC* Source, RECT srcRect, DWORD DrawROP)
 {
 	HDC SourceHandle = Source ? Source->GetHandle() : 0;
-	StretchBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
+	StretchBlt(handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
 			   SourceHandle, srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top,
 			   DrawROP);
 }
@@ -998,7 +998,7 @@ void WinDC::Copy(POINT UpperLeft, POINT UpperRight, POINT LowerLeft, WinDC* Sour
 	Pt[0] = UpperLeft;
 	Pt[1] = UpperRight;
 	Pt[2] = LowerLeft;
-	PlgBlt(_Handle, Pt, Source->GetHandle(), srcX, srcY, srcW, srcH, 0, 0, 0);
+	PlgBlt(handle, Pt, Source->GetHandle(), srcX, srcY, srcW, srcH, 0, 0, 0);
 }
 
 void WinDC::Copy(POINT UpperLeft, POINT UpperRight, POINT LowerLeft, WinDC*Source, RECT srcRect)
@@ -1007,17 +1007,17 @@ void WinDC::Copy(POINT UpperLeft, POINT UpperRight, POINT LowerLeft, WinDC*Sourc
 	Pt[0] = UpperLeft;
 	Pt[1] = UpperRight;
 	Pt[2] = LowerLeft;
-	PlgBlt(_Handle, Pt, Source->GetHandle(), srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top, 0, 0, 0);
+	PlgBlt(handle, Pt, Source->GetHandle(), srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top, 0, 0, 0);
 }
 
 void WinDC::CopyTrans(int dstX, int dstY, int dstW, int dstH, WinDC* Source, int srcX, int srcY, int srcW, int srcH, COLORREF Color)
 {
-	TransparentBlt(_Handle, dstX, dstY, dstW, dstH, Source->GetHandle(), srcX, srcY, srcW, srcH, Color);
+	TransparentBlt(handle, dstX, dstY, dstW, dstH, Source->GetHandle(), srcX, srcY, srcW, srcH, Color);
 }
 
 void WinDC::CopyTrans(RECT dstRect, WinDC* Source, RECT srcRect, COLORREF Color)
 {
-	TransparentBlt(_Handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
+	TransparentBlt(handle, dstRect.left, dstRect.top, dstRect.right - dstRect.left, dstRect.bottom - dstRect.top,
 				   Source->GetHandle(), srcRect.left, srcRect.top, srcRect.right - srcRect.left, srcRect.bottom - srcRect.top,
 				   Color);
 }
@@ -1040,10 +1040,10 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinMetaFile* MetaFile)
 
 void WinDC::Draw(RECT Rect, WinMetaFile* MetaFile)
 {
-	PlayEnhMetaFile(_Handle, MetaFile->GetHandle(), &Rect);
+	PlayEnhMetaFile(handle, MetaFile->GetHandle(), &Rect);
 }
 
-void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap)
+void WinDC::Draw(int dstX, int dstY, WinBitmap::Ptr Bitmap)
 {
 	int dstW = Bitmap->GetWidth();
 	int dstH = Bitmap->GetHeight();
@@ -1051,18 +1051,18 @@ void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap)
 	int srcY = 0;
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+		BitBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
 	}
 	else
 	{
 		int srcW = dstW;
 		int srcH = dstH;
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap)
+void WinDC::Draw(POINT Pos, WinBitmap::Ptr Bitmap)
 {
 	int dstX = Pos.x;
 	int dstY = Pos.y;
@@ -1072,18 +1072,18 @@ void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap)
 	int srcY = 0;
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+		BitBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
 	}
 	else
 	{
 		int srcW = dstW;
 		int srcH = dstH;
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap)
 {
 	int srcX = 0;
 	int srcY = 0;
@@ -1091,16 +1091,16 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitm
 	int srcH = Bitmap->GetHeight();
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+		StretchBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
 	}
 	else
 	{
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap)
+void WinDC::Draw(RECT Rect, WinBitmap::Ptr Bitmap)
 {
 	int dstX = Rect.left;
 	int dstY = Rect.top;
@@ -1112,31 +1112,31 @@ void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap)
 	int srcH = Bitmap->GetWidth();
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+		StretchBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
 	}
 	else
 	{
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY)
 {
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+		BitBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
 	}
 	else
 	{
 		int srcW = dstW;
 		int srcH = dstH;
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos)
+void WinDC::Draw(RECT Rect, WinBitmap::Ptr Bitmap, POINT Pos)
 {
 	int dstX = Rect.left;
 	int dstY = Rect.top;
@@ -1146,22 +1146,22 @@ void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos)
 	int srcY = Pos.y;
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		BitBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
+		BitBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, SRCCOPY);
 	}
 	else
 	{
 		int srcW = dstW;
 		int srcH = dstH;
 		BLENDFUNCTION Blend{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, int srcW, int srcH)
 {
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+		StretchBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
 	}
 	else
 	{
@@ -1170,11 +1170,11 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitm
 		Blend.BlendFlags = 0;
 		Blend.SourceConstantAlpha = 255;
 		Blend.AlphaFormat = AC_SRC_ALPHA;
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
-void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect)
+void WinDC::Draw(RECT dstRect, WinBitmap::Ptr Bitmap, RECT srcRect)
 {
 	int dstX = dstRect.left;
 	int dstY = dstRect.top;
@@ -1186,7 +1186,7 @@ void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect)
 	int srcH = srcRect.bottom - srcRect.top;
 	if (!Bitmap->IsAlphaChannelBuilt())
 	{
-		StretchBlt(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
+		StretchBlt(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, SRCCOPY);
 	}
 	else
 	{
@@ -1195,13 +1195,13 @@ void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect)
 		Blend.BlendFlags = 0;
 		Blend.SourceConstantAlpha = 255;
 		Blend.AlphaFormat = AC_SRC_ALPHA;
-		AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+		AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 	}
 }
 
 /*------------------------------------------------------------------------------*/
 
-void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap, byte Alpha)
+void WinDC::Draw(int dstX, int dstY, WinBitmap::Ptr Bitmap, byte Alpha)
 {
 	int dstW = Bitmap->GetWidth();
 	int dstH = Bitmap->GetHeight();
@@ -1215,10 +1215,10 @@ void WinDC::Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap, byte Alpha)
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap, byte Alpha)
+void WinDC::Draw(POINT Pos, WinBitmap::Ptr Bitmap, byte Alpha)
 {
 	int dstX = Pos.x;
 	int dstY = Pos.y;
@@ -1234,10 +1234,10 @@ void WinDC::Draw(POINT Pos, WinBitmap::Pointer Bitmap, byte Alpha)
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, byte Alpha)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, byte Alpha)
 {
 	int srcX = 0;
 	int srcY = 0;
@@ -1249,10 +1249,10 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitm
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, byte Alpha)
+void WinDC::Draw(RECT Rect, WinBitmap::Ptr Bitmap, byte Alpha)
 {
 	int dstX = Rect.left;
 	int dstY = Rect.top;
@@ -1268,10 +1268,10 @@ void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, byte Alpha)
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, byte Alpha)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, byte Alpha)
 {
 	int srcW = dstW;
 	int srcH = dstH;
@@ -1281,10 +1281,10 @@ void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitm
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos, byte Alpha)
+void WinDC::Draw(RECT Rect, WinBitmap::Ptr Bitmap, POINT Pos, byte Alpha)
 {
 	int dstX = Rect.left;
 	int dstY = Rect.top;
@@ -1300,20 +1300,20 @@ void WinDC::Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos, byte Alpha)
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH, byte Alpha)
+void WinDC::Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, int srcW, int srcH, byte Alpha)
 {
 	BLENDFUNCTION Blend;
 	Blend.BlendOp = AC_SRC_OVER;
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
-void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect, byte Alpha)
+void WinDC::Draw(RECT dstRect, WinBitmap::Ptr Bitmap, RECT srcRect, byte Alpha)
 {
 	int dstX = dstRect.left;
 	int dstY = dstRect.top;
@@ -1329,20 +1329,20 @@ void WinDC::Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect, byte Alp
 	Blend.BlendFlags = 0;
 	Blend.SourceConstantAlpha = Alpha;
 	Blend.AlphaFormat = Bitmap->IsAlphaChannelBuilt() ? AC_SRC_ALPHA : 0;
-	AlphaBlend(_Handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
+	AlphaBlend(handle, dstX, dstY, dstW, dstH, Bitmap->GetWinDC()->GetHandle(), srcX, srcY, srcW, srcH, Blend);
 }
 
 WinControlDC::WinControlDC(HWND Handle)
 	: WinDC()
-	, _ControlHandle(Handle)
+	, controlHandle(Handle)
 {
-	_Handle = GetDC(_ControlHandle);
+	handle = GetDC(controlHandle);
 	Initialize();
 }
 
 WinControlDC::~WinControlDC()
 {
-	ReleaseDC(_ControlHandle, _Handle);
+	ReleaseDC(controlHandle, handle);
 }
 
 WinProxyDC::WinProxyDC()
@@ -1356,20 +1356,20 @@ WinProxyDC::~WinProxyDC()
 
 void WinProxyDC::Initialize(HDC Handle)
 {
-	_Handle = Handle;
+	handle = Handle;
 	WinDC::Initialize();
 }
 
 WinImageDC::WinImageDC()
 	: WinDC()
 {
-	_Handle = CreateCompatibleDC(NULL);
+	handle = CreateCompatibleDC(NULL);
 	Initialize();
 }
 
 WinImageDC::~WinImageDC()
 {
-	DeleteDC(_Handle);
+	DeleteDC(handle);
 }
 
 }

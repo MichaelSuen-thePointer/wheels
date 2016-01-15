@@ -157,7 +157,7 @@ public:
 	WinFontDialog();
 	~WinFontDialog();
 
-	WinFont::Pointer Font;
+	WinFont::Ptr Font;
 	COLORREF Color;
 
 	bool GetTrueTypeOnly();

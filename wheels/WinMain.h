@@ -23,9 +23,9 @@ protected:
 	WinForm* _MainForm;
 	FormList _Forms;
 
-	WinPen::Pointer _Pen;
-	WinBrush::Pointer _Brush;
-	WinFont::Pointer _Font;
+	WinPen::Ptr _Pen;
+	WinBrush::Ptr _Brush;
+	WinFont::Ptr _Font;
 
 	bool ProcessMessage(bool InMessageLoop);
 	bool RegisterForm(WinForm* Form);
@@ -42,9 +42,9 @@ public:
 	void Terminate();
 	WinForm* GetMainForm();
 
-	WinPen::Pointer GetDefaultPen();
-	WinBrush::Pointer GetDefaultBrush();
-	WinFont::Pointer GetDefaultFont();
+	WinPen::Ptr GetDefaultPen();
+	WinBrush::Ptr GetDefaultBrush();
+	WinFont::Ptr GetDefaultFont();
 };
 
 extern WinClass* GetDefaultClass();

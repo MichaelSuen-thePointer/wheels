@@ -358,7 +358,7 @@ protected:
     int _LastX;
     int _LastY;
     WinContainer* _Parent;
-    WinFont::Pointer _Font;
+    WinFont::Ptr _Font;
     bool _SubClassed;
 
     bool _CreateWindow(DWORD ExStyle, DWORD Style, const wchar_t* ClassName, WinContainer* Parent);
@@ -457,8 +457,8 @@ public:
     bool GetAcceptFiles();
     void SetAcceptFiles(bool Value);
 
-    WinFont::Pointer GetFont();
-    void SetFont(WinFont::Pointer Font);
+    WinFont::Ptr GetFont();
+    void SetFont(WinFont::Ptr Font);
 };
 typedef std::vector<WinControl*> WinControlList;
 
@@ -636,7 +636,7 @@ class WinImageList: public Object
 {
 protected:
     HIMAGELIST _Handle;
-    WinBitmap::Pointer CheckBitmap(WinBitmap::Pointer Bitmap);
+    WinBitmap::Ptr CheckBitmap(WinBitmap::Ptr Bitmap);
     //WinBitmap::Pointer CreateMask(WinBitmap::Pointer Bitmap);
 public:
     WinImageList(int Width, int Height);
@@ -644,8 +644,8 @@ public:
     ~WinImageList();
 
     HIMAGELIST GetHandle();
-    void Add(WinBitmap::Pointer Bitmap);
-    void Replace(int Index, WinBitmap::Pointer Bitmap);
+    void Add(WinBitmap::Ptr Bitmap);
+    void Replace(int Index, WinBitmap::Ptr Bitmap);
     void Remove(int Index);
     int GetCount();
     int GetImageWidth();
@@ -699,8 +699,8 @@ protected:
     WinMenu* _Owner;
     int _Handle;
     WinPopupMenu* _SubMenu;
-    WinBitmap::Pointer _CheckedBitmap;
-    WinBitmap::Pointer _UncheckedBitmap;
+    WinBitmap::Ptr _CheckedBitmap;
+    WinBitmap::Ptr _UncheckedBitmap;
 
     bool _Checked;
     bool _Separator;
@@ -716,7 +716,7 @@ protected:
     void OnExecuteAcceleratorItem() override;
     void FillStruct(MENUITEMINFO* Info);
     void RefreshProperties();
-    WinBitmap::Pointer CheckBitmap(WinBitmap::Pointer Bitmap);
+    WinBitmap::Ptr CheckBitmap(WinBitmap::Ptr Bitmap);
 public:
     NotifyEvent OnClick;
     NotifyEvent OnRightClick;
@@ -747,11 +747,11 @@ public:
     std::wstring GetText();
     void SetText(const std::wstring& Text);
 
-    WinBitmap::Pointer GetCheckedBitmap();
-    void SetCheckedBitmap(WinBitmap::Pointer Bitmap);
+    WinBitmap::Ptr GetCheckedBitmap();
+    void SetCheckedBitmap(WinBitmap::Ptr Bitmap);
 
-    WinBitmap::Pointer GetUncheckedBitmap();
-    void SetUncheckedBitmap(WinBitmap::Pointer Bitmap);
+    WinBitmap::Ptr GetUncheckedBitmap();
+    void SetUncheckedBitmap(WinBitmap::Ptr Bitmap);
 
     WinPopupMenu* GetSubMenu();
     WinPopupMenu* CreateSubMenu();

@@ -17,19 +17,19 @@ WinForm* WinApplication::GetMainForm()
 }
 
 inline
-WinPen::Pointer WinApplication::GetDefaultPen()
+WinPen::Ptr WinApplication::GetDefaultPen()
 {
 	return _Pen;
 }
 
 inline
-WinBrush::Pointer WinApplication::GetDefaultBrush()
+WinBrush::Ptr WinApplication::GetDefaultBrush()
 {
 	return _Brush;
 }
 
 inline
-WinFont::Pointer WinApplication::GetDefaultFont()
+WinFont::Ptr WinApplication::GetDefaultFont()
 {
 	return _Font;
 }

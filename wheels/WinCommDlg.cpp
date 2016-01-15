@@ -284,7 +284,7 @@ bool WinFontDialog::Execute(WinForm* Form)
 	if (Result)
 	{
 		Color = cf.rgbColors;
-		Font = std::make_shared<WinFont>(&_FontInfo);
+		Font = MakeShared<WinFont>(&_FontInfo);
 	}
 	GetCommdlgService()->UnregisterFontDialog(_Handle);
 	return Result;

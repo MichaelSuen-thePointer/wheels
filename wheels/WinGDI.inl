@@ -1,5 +1,5 @@
 inline
-bool IsEqual(WinRegion::Pointer Region1, WinRegion::Pointer Region2)
+bool IsEqual(WinRegion::Ptr Region1, WinRegion::Ptr Region2)
 {
 	return EqualRgn(Region1->GetHandle(), Region2->GetHandle()) != 0;
 }
@@ -7,39 +7,39 @@ bool IsEqual(WinRegion::Pointer Region1, WinRegion::Pointer Region2)
 inline
 HRGN WinRegion::GetHandle()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 bool WinRegion::ContainPoint(POINT Point)
 {
-	return PtInRegion(_Handle, Point.x, Point.y) == 1;
+	return PtInRegion(handle, Point.x, Point.y) == 1;
 }
 
 inline
 bool WinRegion::ContainRectangle(RECT Rect)
 {
-	return RectInRegion(_Handle, &Rect) == 1;
+	return RectInRegion(handle, &Rect) == 1;
 }
 
 inline
 RECT WinRegion::GetBoundRectangle()
 {
 	RECT Rect = {0};
-	GetRgnBox(_Handle, &Rect);
+	GetRgnBox(handle, &Rect);
 	return Rect;	
 }
 
 inline
 void WinRegion::Move(int OffsetX, int OffsetY)
 {
-	OffsetRgn(_Handle, OffsetX, OffsetY);
+	OffsetRgn(handle, OffsetX, OffsetY);
 }
 
 inline
 WinTransform& WinTransform::operator=(const WinTransform& Transform)
 {
-	_Transform = Transform._Transform;
+	transform = Transform.transform;
 	return *this;
 }
 
@@ -54,7 +54,7 @@ WinTransform WinTransform::operator*(const WinTransform& Transform)
 inline
 const XFORM* WinTransform::GetHandle() const
 {
-	return &_Transform;
+	return &transform;
 }
 
 inline
@@ -129,51 +129,51 @@ void WinMetaFileBuilder::Draw(HENHMETAFILE Handle)
 	RECT Rect;
 	Rect.left = 0;
 	Rect.top = 0;
-	Rect.right = _Width;
-	Rect.bottom = _Height;
-	PlayEnhMetaFile(_DC->GetHandle(), Handle, &Rect);
+	Rect.right = width;
+	Rect.bottom = height;
+	PlayEnhMetaFile(proxyDC->GetHandle(), Handle, &Rect);
 }
 
 inline
 void WinMetaFileBuilder::Destroy()
 {
-	DeleteEnhMetaFile(CloseEnhMetaFile(_DC->GetHandle()));
+	DeleteEnhMetaFile(CloseEnhMetaFile(proxyDC->GetHandle()));
 }
 
 inline
 WinDC* WinMetaFileBuilder::GetWinDC()
 {
-	return _DC;
+	return proxyDC;
 }
 
 inline
 int WinMetaFileBuilder::GetWidth()
 {
-	return _Width;
+	return width;
 }
 
 inline
 int WinMetaFileBuilder::GetHeight()
 {
-	return _Height;
+	return height;
 }
 
 inline
 HENHMETAFILE WinMetaFile::GetHandle()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 int WinMetaFile::GetWidth()
 {
-	return _Width;
+	return width;
 }
 
 inline
 int WinMetaFile::GetHeight()
 {
-	return _Height;
+	return height;
 }
 
 inline
@@ -193,89 +193,89 @@ int WinBitmap::GetBitsFromBB(BitmapBits BB)
 inline
 WinDC* WinBitmap::GetWinDC()
 {
-	return _DC;
+	return imageDC;
 }
 
 inline
 int WinBitmap::GetWidth()
 {
-	return _Width;
+	return width;
 }
 
 inline
 int WinBitmap::GetHeight()
 {
-	return _Height;
+	return height;
 }
 
 inline
 int WinBitmap::GetLineBytes()
 {
-	return GetLineBytes(_Width, _Bits);
+	return GetLineBytes(width, bits);
 }
 
 inline
 BYTE** WinBitmap::GetScanLines()
 {
-	return _ScanLines;
+	return scanLines;
 }
 
 inline
 HBITMAP WinBitmap::GetBitmap()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 WinBitmap::BitmapBits WinBitmap::GetBitmapBits()
 {
-	return _Bits;
+	return bits;
 }
 
 inline
 void WinBitmap::FillCompatibleHeader(BITMAPINFOHEADER* Header)
 {
-	FillBitmapInfoHeader(_Width, _Height, _Bits, Header);
+	FillBitmapInfoHeader(width, height, bits, Header);
 }
 
 inline
 bool WinBitmap::CanBuildAlphaChannel()
 {
-	return _ScanLines != 0 && _Bits == BitmapBits::Bit32;
+	return scanLines != 0 && bits == BitmapBits::Bit32;
 }
 
 inline
 bool WinBitmap::IsAlphaChannelBuilt()
 {
-	return _AlphaChannelBuilt;
+	return hasAlphaChannelBuilt;
 }
 
 inline
 HBRUSH WinBrush::GetHandle()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 HPEN WinPen::GetHandle()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 HFONT WinFont::GetHandle()
 {
-	return _Handle;
+	return handle;
 }
 
 inline
 LOGFONT* WinFont::GetInfo()
 {
-	return &_FontInfo;
+	return &fontInfo;
 }
 
 inline
 HDC WinDC::GetHandle()
 {
-	return _Handle;
+	return handle;
 }

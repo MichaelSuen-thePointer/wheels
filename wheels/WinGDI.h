@@ -16,17 +16,17 @@ namespace windows
 class WinRegion: public Object
 {
 public:
-	using Pointer = std::shared_ptr<WinRegion>;
-	friend bool IsEqual(WinRegion::Pointer Region1, WinRegion::Pointer Region2);
+	using Ptr = SharedPtr<WinRegion>;
+	friend bool IsEqual(WinRegion::Ptr Region1, WinRegion::Ptr Region2);
 protected:
-	HRGN _Handle;
+	HRGN handle;
 public:
 	WinRegion(int left, int top, int right, int bottom, bool rectangle);
 	WinRegion(RECT Rect, bool IsRectangle);
 	WinRegion(int left, int top, int right, int bottom, int EllipseWidth, int EllipseHeight);
 	WinRegion(POINT Points[], int Count, bool Alternate);
-	WinRegion(WinRegion::Pointer Region);
-	WinRegion(WinRegion::Pointer Region1, WinRegion::Pointer Region2, int CombineMode);
+	WinRegion(WinRegion::Ptr Region);
+	WinRegion(WinRegion::Ptr Region1, WinRegion::Ptr Region2, int CombineMode);
 	WinRegion(HRGN Rectangle);
 	~WinRegion();
 
@@ -40,7 +40,7 @@ public:
 class WinTransform: public Object
 {
 protected:
-	XFORM _Transform;
+	XFORM transform;
 public:
 	WinTransform(XFORM Transform);
 	WinTransform(const WinTransform& Transform);
@@ -70,9 +70,9 @@ class WinMetaFileBuilder: public Object
 {
 	friend class WinMetaFile;
 protected:
-	int _Width;
-	int _Height;
-	WinProxyDC* _DC;
+	int width;
+	int height;
+	WinProxyDC* proxyDC;
 
 	void Create(int Width, int Height);
 	void Draw(HENHMETAFILE Handle);
@@ -94,9 +94,9 @@ class WinMetaFile: public Object
 {
 	friend class WinMetaFileBuilder;
 protected:
-	HENHMETAFILE _Handle;
-	int _Width;
-	int _Height;
+	HENHMETAFILE handle;
+	int width;
+	int height;
 public:
 	WinMetaFile(const std::wstring& FileName);
 	WinMetaFile(WinMetaFileBuilder* Builder);
@@ -110,7 +110,7 @@ public:
 class WinBitmap: public Object
 {
 public:
-	using Pointer = std::shared_ptr<WinBitmap>;
+	using Ptr = SharedPtr<WinBitmap>;
 	enum class BitmapBits
 	{
 		Bit2,
@@ -118,13 +118,13 @@ public:
 		Bit32
 	};
 protected:
-	BitmapBits _Bits;
-	int _Width;
-	int _Height;
-	WinImageDC* _DC;
-	HBITMAP _Handle;
-	BYTE** _ScanLines;
-	bool _AlphaChannelBuilt;
+	BitmapBits bits;
+	int width;
+	int height;
+	WinImageDC* imageDC;
+	HBITMAP handle;
+	BYTE** scanLines;
+	bool hasAlphaChannelBuilt;
 
 	int GetBitsFromBB(BitmapBits BB);
 	int GetLineBytes(int Width, BitmapBits BB);
@@ -162,14 +162,14 @@ public:
 class WinBrush: public Object
 {
 public:
-	using Pointer = std::shared_ptr<WinBrush>;
+	using Ptr = SharedPtr<WinBrush>;
 protected:
-	HBRUSH _Handle;
-	BYTE* _DIBMemory;
+	HBRUSH handle;
+	BYTE* dibMemory;
 public:
 	WinBrush(COLORREF Color);
 	WinBrush(int Hatch, COLORREF Color);
-	WinBrush(WinBitmap::Pointer Bitmap);
+	WinBrush(WinBitmap::Ptr Bitmap);
 	~WinBrush();
 
 	HBRUSH GetHandle();
@@ -178,15 +178,15 @@ public:
 class WinPen: public Object
 {
 public:
-	using Pointer = std::shared_ptr<WinPen>;
+	using Ptr = SharedPtr<WinPen>;
 protected:
-	HPEN _Handle;
-	BYTE* _DIBMemory;
+	HPEN handle;
+	BYTE* dibMemory;
 public:
 	WinPen(int Style, int Width, COLORREF Color);
 	WinPen(int Style, int EndCap, int Join, int Width, COLORREF Color);
 	WinPen(int Style, int EndCap, int Join, int Hatch, int Width, COLORREF Color);
-	WinPen(WinBitmap::Pointer DIB, int Style, int EndCap, int Join, int Width);
+	WinPen(WinBitmap::Ptr DIB, int Style, int EndCap, int Join, int Width);
 	~WinPen();
 
 	HPEN GetHandle();
@@ -195,14 +195,14 @@ public:
 class WinFont: public Object
 {
 public:
-	using Pointer = std::shared_ptr<WinFont>;
+	using Ptr = SharedPtr<WinFont>;
 protected:
-	LOGFONT _FontInfo;
-	HFONT _Handle;
+	LOGFONT fontInfo;
+	HFONT handle;
 public:
 	WinFont(const std::wstring& Name, int Height, int Width, int Escapement, int Orientation, int Weight, bool Italic, bool UnderLine, bool StrikeOut, bool Antialise);
     
-    static std::shared_ptr<WinFont> FromWindow(HWND Handle, const wchar_t* Name, int Point);
+    static WinFont::Ptr GetFontForWindow(HWND Handle, const wchar_t* Name, int Point);
     WinFont(LOGFONT* FontInfo);
 	~WinFont();
 	HFONT GetHandle();
@@ -212,14 +212,14 @@ public:
 class WinDC: public Object
 {
 protected:
-	HDC _Handle;
-	WinPen::Pointer _Pen;
-	WinBrush::Pointer _Brush;
-	WinFont::Pointer _Font;
+	HDC handle;
+	WinPen::Ptr pen;
+	WinBrush::Ptr brush;
+	WinFont::Ptr font;
 
-	HPEN _OldPen;
-	HBRUSH _OldBrush;
-	HFONT _OldFont;
+	HPEN oldPen;
+	HBRUSH oldBrush;
+	HFONT oldFont;
 
 	void Initialize();
 public:
@@ -228,9 +228,9 @@ public:
 
 	HDC GetHandle();
 
-	void SetPen(WinPen::Pointer Pen);
-	void SetBrush(WinBrush::Pointer Brush);
-	void SetFont(WinFont::Pointer Font);
+	void SetPen(WinPen::Ptr Pen);
+	void SetBrush(WinBrush::Ptr Brush);
+	void SetFont(WinFont::Ptr Font);
 	COLORREF GetBackgroundColor();
 	void SetBackgroundColor(COLORREF Color);
 	COLORREF GetTextColor();
@@ -244,8 +244,8 @@ public:
 	void DrawString(int X, int Y, const std::wstring& Text,
 					int TabWidth, int TabOriginX);
 
-	void FillRegion(WinRegion::Pointer Region);
-	void FrameRegion(WinRegion::Pointer Region, int BlockWidth, int BlockHeight);
+	void FillRegion(WinRegion::Ptr Region);
+	void FrameRegion(WinRegion::Ptr Region, int BlockWidth, int BlockHeight);
 
 	void MoveTo(int X, int Y);
 	void LineTo(int X, int Y);
@@ -282,18 +282,18 @@ public:
 	void DrawPath();
 	void FillPath();
 	void DrawAndFillPath();
-	WinRegion::Pointer RegionFromPath();
+	WinRegion::Ptr RegionFromPath();
 
 	bool PointInClip(POINT Point);
 	bool RectangleInClip(RECT Rect);
 	void ClipPath(int CombindMode);
-	void ClipRegion(WinRegion::Pointer Region);
+	void ClipRegion(WinRegion::Ptr Region);
 	void RemoveClip();
 	void MoveClip(int OffsetX, int OffsetY);
-	void CombineClip(WinRegion::Pointer Region, int CombineMode);
+	void CombineClip(WinRegion::Ptr Region, int CombineMode);
 	void IntersetClipRect(RECT Rect);
 	void ExcludeClipRect(RECT Rect);
-	WinRegion::Pointer GetClipRegion();
+	WinRegion::Ptr GetClipRegion();
 	RECT GetClipBoundRect();
 
 	WinTransform GetTransform();
@@ -313,29 +313,29 @@ public:
 	void Draw(int dstX, int dstY, int dstW, int dstH, WinMetaFile* MetaFile);
 	void Draw(RECT Rect, WinMetaFile* MetaFile);
 
-	void Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap);
-	void Draw(POINT Pos, WinBitmap::Pointer Bitmap);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap);
-	void Draw(RECT Rect, WinBitmap::Pointer Bitmap);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY);
-	void Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH);
-	void Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect);
+	void Draw(int dstX, int dstY, WinBitmap::Ptr Bitmap);
+	void Draw(POINT Pos, WinBitmap::Ptr Bitmap);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap);
+	void Draw(RECT Rect, WinBitmap::Ptr Bitmap);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY);
+	void Draw(RECT Rect, WinBitmap::Ptr Bitmap, POINT Pos);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, int srcW, int srcH);
+	void Draw(RECT dstRect, WinBitmap::Ptr Bitmap, RECT srcRect);
 
-	void Draw(int dstX, int dstY, WinBitmap::Pointer Bitmap, byte Alpha);
-	void Draw(POINT Pos, WinBitmap::Pointer Bitmap, byte Alpha);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, byte Alpha);
-	void Draw(RECT Rect, WinBitmap::Pointer Bitmap, byte Alpha);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, byte Alpha);
-	void Draw(RECT Rect, WinBitmap::Pointer Bitmap, POINT Pos, byte Alpha);
-	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Pointer Bitmap, int srcX, int srcY, int srcW, int srcH, byte Alpha);
-	void Draw(RECT dstRect, WinBitmap::Pointer Bitmap, RECT srcRect, byte Alpha);
+	void Draw(int dstX, int dstY, WinBitmap::Ptr Bitmap, byte Alpha);
+	void Draw(POINT Pos, WinBitmap::Ptr Bitmap, byte Alpha);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, byte Alpha);
+	void Draw(RECT Rect, WinBitmap::Ptr Bitmap, byte Alpha);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, byte Alpha);
+	void Draw(RECT Rect, WinBitmap::Ptr Bitmap, POINT Pos, byte Alpha);
+	void Draw(int dstX, int dstY, int dstW, int dstH, WinBitmap::Ptr Bitmap, int srcX, int srcY, int srcW, int srcH, byte Alpha);
+	void Draw(RECT dstRect, WinBitmap::Ptr Bitmap, RECT srcRect, byte Alpha);
 };
 
 class WinControlDC: public WinDC
 {
 protected:
-	HWND _ControlHandle;
+	HWND controlHandle;
 public:
 	WinControlDC(HWND Handle);
 	~WinControlDC();

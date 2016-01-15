@@ -870,7 +870,7 @@ bool WinControl::_CreateWindow(DWORD ExStyle, DWORD Style, const wchar_t * Class
             {
                 SetParent(Parent);
             }
-            SetFont(WinFont::FromWindow(_Handle, L"Î¢ÈíÑÅºÚ", 10));
+            SetFont(WinFont::GetFontForWindow(_Handle, L"Î¢ÈíÑÅºÚ", 10));
             return true;
         }
         else
@@ -1014,7 +1014,7 @@ WinControl::WinControl(DWORD exStyle, DWORD style, const wchar_t* className, Win
     , _LastX(-1)
     , _LastY(-1)
     , _Parent(parent)
-    , _Font(WinFont::FromWindow(_Handle, L"Î¢ÈíÑÅºÚ", 10))
+    , _Font(WinFont::GetFontForWindow(_Handle, L"Î¢ÈíÑÅºÚ", 10))
     , _SubClassed(false)
 {
     if (_Handle != NULL)
@@ -1843,11 +1843,11 @@ void WinTimer::SetEnabled(bool Value)
 
 /*WinImageList*/
 
-WinBitmap::Pointer WinImageList::CheckBitmap(WinBitmap::Pointer Bitmap)
+WinBitmap::Ptr WinImageList::CheckBitmap(WinBitmap::Ptr Bitmap)
 {
     if (Bitmap)
     {
-        WinBitmap::Pointer DIB = 0;
+        WinBitmap::Ptr DIB = 0;
         int w = GetImageWidth();
         int h = GetImageHeight();
         if (Bitmap->GetWidth() == w && Bitmap->GetHeight() == h && Bitmap->GetBitmapBits() == WinBitmap::BitmapBits::Bit32)
@@ -1856,7 +1856,7 @@ WinBitmap::Pointer WinImageList::CheckBitmap(WinBitmap::Pointer Bitmap)
         }
         else
         {
-            DIB = std::make_shared<WinBitmap>(w, h, WinBitmap::BitmapBits::Bit32, true);
+            DIB = MakeShared<WinBitmap>(w, h, WinBitmap::BitmapBits::Bit32, true);
             DIB->GetWinDC()->Draw(0, 0, w, h, Bitmap);
             DIB->GenerateTrans(GetPixel(DIB->GetWinDC()->GetHandle(), 0, 0));
         }
@@ -1880,9 +1880,9 @@ WinImageList::~WinImageList()
     ImageList_Destroy(_Handle);
 }
 
-void WinImageList::Add(WinBitmap::Pointer Bitmap)
+void WinImageList::Add(WinBitmap::Ptr Bitmap)
 {
-    WinBitmap::Pointer Dest = CheckBitmap(Bitmap);
+    WinBitmap::Ptr Dest = CheckBitmap(Bitmap);
     if (GetCount() == 0)
     {
         SetBackgroundColor(GetPixel(Dest->GetWinDC()->GetHandle(), 0, 0));
@@ -1891,9 +1891,9 @@ void WinImageList::Add(WinBitmap::Pointer Bitmap)
     int Index = ImageList_Add(_Handle, Dest->GetBitmap(), NULL);
 }
 
-void WinImageList::Replace(int Index, WinBitmap::Pointer Bitmap)
+void WinImageList::Replace(int Index, WinBitmap::Ptr Bitmap)
 {
-    WinBitmap::Pointer Dest = CheckBitmap(Bitmap);
+    WinBitmap::Ptr Dest = CheckBitmap(Bitmap);
     //ModifyBitmap();
     ImageList_Replace(_Handle, Index, Dest->GetBitmap(), NULL);
 }
@@ -2031,7 +2031,7 @@ void WinMenuItem::RefreshProperties()
     //int Index = GetSystemMetrics(SM_CXMENUCHECK);
 }
 
-WinBitmap::Pointer WinMenuItem::CheckBitmap(WinBitmap::Pointer Bitmap)
+WinBitmap::Ptr WinMenuItem::CheckBitmap(WinBitmap::Ptr Bitmap)
 {
     if (Bitmap)
     {
@@ -2043,7 +2043,7 @@ WinBitmap::Pointer WinMenuItem::CheckBitmap(WinBitmap::Pointer Bitmap)
         }
         else
         {
-            WinBitmap::Pointer DIB = std::make_shared<WinBitmap>(w, h, WinBitmap::BitmapBits::Bit32, false);
+            WinBitmap::Ptr DIB = MakeShared<WinBitmap>(w, h, WinBitmap::BitmapBits::Bit32, false);
             DIB->GetWinDC()->Draw(0, 0, w, h, Bitmap);
             return DIB;
         }
