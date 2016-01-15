@@ -505,8 +505,8 @@ class WinMenu;
 class WinMenuItem;
 class WinFormMenu;
 
-typedef std::vector<WinTimer*> WinTimerList;
-typedef std::vector<WinMenu*> WinMenuList;
+typedef std::vector<SharedPtr<WinTimer>> WinTimerList;
+typedef std::vector<SharedPtr<WinMenu>> WinMenuList;
 typedef std::map<int, WinMenuItem*> WinMenuItemMap;
 
 enum class WinFormBorder

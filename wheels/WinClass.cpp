@@ -1395,7 +1395,7 @@ void WinContainer::Destroy()
     {
         delete *(_Controls.end() - 1);
     }
-    WinControl::Destroy();
+//    WinControl::Destroy();
 }
 
 WinContainer::WinContainer()
@@ -1529,6 +1529,7 @@ WinForm::WinForm()
 WinForm::~WinForm()
 {
     GetApplication()->UnregisterForm(this);
+    DestroyForm();
 }
 
 LRESULT WinForm::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProc)
@@ -1582,16 +1583,8 @@ LRESULT WinForm::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bo
         OnDestroy(this);
 
         /*É¾³ýTimer*/
-        for (WinTimer* Menu : _TimerList)
-        {
-            delete Menu;
-        }
         _TimerList.clear();
         /*É¾³ý²Ëµ¥*/
-        for (WinMenu* Menu : _MenuList)
-        {
-            delete Menu;
-        }
         _MenuList.clear();
         /*×¢ÏúÈÈ¼ü*/
         for (int HotKey : _HotKeys)
@@ -1622,11 +1615,11 @@ LRESULT WinForm::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bo
         OnHotKey(this, wParam);
         break;
     case WM_TIMER:			/*¶¨Ê±Æ÷*/
-        for (WinTimer* Timer : _TimerList)
+        for (auto& Timer : _TimerList)
         {
             if (Timer->GetEnabled() && Timer->GetHandle() == wParam)
             {
-                Timer->OnTimer(Timer);
+                Timer->OnTimer(Timer.Get());
             }
         }
         break;

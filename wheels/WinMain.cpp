@@ -159,21 +159,22 @@ WinControl* WinApplication::GetControl(HWND Handle)
 
 void WinApplication::Terminate()
 {
-    for (auto form : _Forms)
+    int i = 0;
+    while (_Forms.size() > i)
     {
-        if (form != _MainForm)
+        if (_Forms[i] == _MainForm)
         {
-            form->DestroyForm();
+            i++;
+            continue;
         }
+        delete _Forms[i];
     }
     if (_MainForm)
     {
-        _MainForm->DestroyForm();
+        delete _MainForm;
+        _MainForm = nullptr;
     }
-    while (_Forms.size())
-    {
-        delete *(_Forms.end() - 1);
-    }
+    PostQuitMessage(0);
 }
 
 inline
