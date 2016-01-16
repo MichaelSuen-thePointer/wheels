@@ -495,11 +495,11 @@ WinListView::WinListView(WinContainer* Parent)
     , _ColumnCount(0)
     , _UsedGroupIDs(1)
 {
-    _CreateWindow(0,
+    InternalCreateWindow(0,
                   WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | LVS_ALIGNTOP | LVS_SHAREIMAGELISTS | LVS_ICON,
                   WC_LISTVIEW,
                   Parent);
-    ListView_SetUnicodeFormat(_Handle, TRUE);
+    ListView_SetUnicodeFormat(handle, TRUE);
     SetExStyle(LVS_EX_DOUBLEBUFFER, true);
     SetExStyle(LVS_EX_FULLROWSELECT, true);
     SetExStyle(LVS_EX_TRACKSELECT, false);
@@ -585,7 +585,7 @@ LRESULT WinListView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         case LVN_LINKCLICK:
         {
             NMLVLINK* Param = reinterpret_cast<NMLVLINK*>(lParam);
-            if (ListView_HasGroup(_Handle, Param->iSubItem))
+            if (ListView_HasGroup(handle, Param->iSubItem))
             {
                 OnGroupTaskClick(this, Param->iSubItem, -1);
             }
@@ -625,7 +625,7 @@ LRESULT WinListView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
 }
 ListViewStyle WinListView::GetViewStyle()
 {
-    switch (ListView_GetView(_Handle))
+    switch (ListView_GetView(handle))
     {
     case LV_VIEW_ICON:
         return ListViewStyle::Large;
@@ -644,19 +644,19 @@ void WinListView::SetViewStyle(ListViewStyle Style)
     switch (Style)
     {
     case ListViewStyle::Large:
-        ListView_SetView(_Handle, LV_VIEW_ICON);
+        ListView_SetView(handle, LV_VIEW_ICON);
         break;
     case ListViewStyle::Small:
-        ListView_SetView(_Handle, LV_VIEW_SMALLICON);
+        ListView_SetView(handle, LV_VIEW_SMALLICON);
         break;
     case ListViewStyle::List:
-        ListView_SetView(_Handle, LV_VIEW_LIST);
+        ListView_SetView(handle, LV_VIEW_LIST);
         break;
     case ListViewStyle::Report:
-        ListView_SetView(_Handle, LV_VIEW_DETAILS);
+        ListView_SetView(handle, LV_VIEW_DETAILS);
         break;
     case ListViewStyle::Tile:
-        ListView_SetView(_Handle, LV_VIEW_TILE);
+        ListView_SetView(handle, LV_VIEW_TILE);
         break;
     }
 }
@@ -665,7 +665,7 @@ void WinListView::Sort(void* Param)
     ListViewSortParam P;
     P.Param = Param;
     P.ListView = this;
-    ListView_SortItemsEx(_Handle, ListViewCompareFunc, &P);
+    ListView_SortItemsEx(handle, ListViewCompareFunc, &P);
 }
 void WinListView::InsertItem(int Index, std::wstring& Text, int ImageIndex)
 {
@@ -677,13 +677,13 @@ void WinListView::InsertItem(int Index, std::wstring& Text, int ImageIndex)
     Item.iItem = Index;
     Item.iImage = ImageIndex;
     Item.lParam = 0;
-    ListView_InsertItem(_Handle, &Item);
+    ListView_InsertItem(handle, &Item);
 }
 WinListViewItem WinListView::GetItem(int Index)
 {
     if (Index >= 0 && Index < GetItemCount())
     {
-        return WinListViewItem(_Handle, Index);
+        return WinListViewItem(handle, Index);
     }
     else
     {
@@ -699,14 +699,14 @@ void WinListView::InsertColumn(int Index, std::wstring& Text, int SubItemIndex)
     Column.cchTextMax = Text.length() + 1;
     Column.iSubItem = SubItemIndex + 1;
     Column.cx = 100;
-    if (ListView_InsertColumn(_Handle, Index, &Column) != -1)
+    if (ListView_InsertColumn(handle, Index, &Column) != -1)
     {
         _ColumnCount++;
     }
 }
 void WinListView::DeleteColumn(int Index)
 {
-    if (ListView_DeleteColumn(_Handle, Index) == TRUE)
+    if (ListView_DeleteColumn(handle, Index) == TRUE)
     {
         _ColumnCount--;
     }
@@ -715,7 +715,7 @@ WinListViewColumn WinListView::GetColumn(int Index)
 {
     if (Index >= 0 && Index < GetColumnCount())
     {
-        return WinListViewColumn(_Handle, Index);
+        return WinListViewColumn(handle, Index);
     }
     else
     {
@@ -730,7 +730,7 @@ int WinListView::InsertGroup(int Index, std::wstring& Text)
     Group.mask = LVGF_HEADER | LVGF_GROUPID;
     Group.pszHeader = &Text[0];
     Group.iGroupId = _UsedGroupIDs;
-    ListView_InsertGroup(_Handle, Index, &Group);
+    ListView_InsertGroup(handle, Index, &Group);
     return _UsedGroupIDs++;
 }
 void WinListView::DeleteGroup(int Index)
@@ -738,7 +738,7 @@ void WinListView::DeleteGroup(int Index)
     WinListViewGroup Group = GetGroup(Index);
     if (Group)
     {
-        ListView_RemoveGroup(_Handle, Group.GetGroupID());
+        ListView_RemoveGroup(handle, Group.GetGroupID());
     }
 }
 WinListViewGroup WinListView::GetGroup(int Index)
@@ -747,7 +747,7 @@ WinListViewGroup WinListView::GetGroup(int Index)
     {
         LVGROUP Group;
         FillListViewGroup(&Group, LVGF_GROUPID);
-        ListView_GetGroupInfoByIndex(_Handle, Index, &Group);
+        ListView_GetGroupInfoByIndex(handle, Index, &Group);
         return GetGroupByID(Group.iGroupId);
     }
     else
@@ -758,9 +758,9 @@ WinListViewGroup WinListView::GetGroup(int Index)
 
 WinListViewGroup WinListView::GetGroupByID(int ID)
 {
-    if (ListView_HasGroup(_Handle, ID) == TRUE)
+    if (ListView_HasGroup(handle, ID) == TRUE)
     {
-        return WinListViewGroup(_Handle, ID);
+        return WinListViewGroup(handle, ID);
     }
     else
     {
@@ -918,12 +918,12 @@ WinTreeView::WinTreeView(WinContainer* Parent)
     , _NormalImageList(nullptr)
     , _StateImageList(nullptr)
 {
-    _CreateWindow(
+    InternalCreateWindow(
         TVS_EX_DOUBLEBUFFER,
         WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT,
         WC_TREEVIEW,
         Parent);
-    TreeView_SetUnicodeFormat(_Handle, TRUE);
+    TreeView_SetUnicodeFormat(handle, TRUE);
     //SetExStyle(TVS_EX_DOUBLEBUFFER,true);
 }
 
@@ -962,13 +962,13 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
         case TVN_BEGINDRAG:
         {
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
-            OnBeginDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            OnBeginDrag(this, WinTreeViewItem(handle, Param->itemNew.hItem));
             break;
         }
         case TVN_BEGINRDRAG:
         {
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
-            OnBeginRightDrag(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            OnBeginRightDrag(this, WinTreeViewItem(handle, Param->itemNew.hItem));
             break;
         }
         case TVN_BEGINLABELEDIT:
@@ -976,7 +976,7 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
             CallDefaultProcedure = false;
             NMTVDISPINFOW* Param = reinterpret_cast<NMTVDISPINFOW*>(lParam);
             bool Accept = true;
-            OnBeginLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
+            OnBeginLabelEdit(this, WinTreeViewItem(handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
             return Accept ? FALSE : TRUE;
             break;
         }
@@ -985,20 +985,20 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
             CallDefaultProcedure = false;
             NMTVDISPINFOW* Param = reinterpret_cast<NMTVDISPINFOW*>(lParam);
             bool Accept = true;
-            OnEndLabelEdit(this, WinTreeViewItem(_Handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
+            OnEndLabelEdit(this, WinTreeViewItem(handle, Param->item.hItem), Accept, (Param->item.pszText ? Param->item.pszText : L""));
             return Accept ? TRUE : FALSE;
             break;
         }
         case TVN_ITEMEXPANDING:
         {
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
-            OnItemExpanding(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            OnItemExpanding(this, WinTreeViewItem(handle, Param->itemNew.hItem));
             break;
         }
         case TVN_ITEMEXPANDED:
         {
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
-            OnItemExpanded(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            OnItemExpanded(this, WinTreeViewItem(handle, Param->itemNew.hItem));
             break;
         }
         case TVN_SELCHANGING:
@@ -1006,14 +1006,14 @@ LRESULT WinTreeView::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
             CallDefaultProcedure = false;
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
             bool Accept = true;
-            OnItemSelecting(this, WinTreeViewItem(_Handle, Param->itemNew.hItem), Accept);
+            OnItemSelecting(this, WinTreeViewItem(handle, Param->itemNew.hItem), Accept);
             return Accept ? FALSE : TRUE;
             break;
         }
         case TVN_SELCHANGED:
         {
             NMTREEVIEWW* Param = reinterpret_cast<NMTREEVIEWW*>(lParam);
-            OnItemSelected(this, WinTreeViewItem(_Handle, Param->itemNew.hItem));
+            OnItemSelected(this, WinTreeViewItem(handle, Param->itemNew.hItem));
             break;
         }
         }
@@ -1031,7 +1031,7 @@ WinTreeViewItem WinTreeView::AddRootItem(std::wstring& Text, int ImageIndex, int
     FillTreeViewInsertItem(&Item, Text, ImageIndex, SelectedImageIndex);
     Item.hParent = NULL;
     Item.hInsertAfter = TVI_ROOT;
-    return WinTreeViewItem(_Handle, TreeView_InsertItem(_Handle, &Item));
+    return WinTreeViewItem(handle, TreeView_InsertItem(handle, &Item));
 }
 
 }

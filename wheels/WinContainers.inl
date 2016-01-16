@@ -61,7 +61,7 @@ WinImageList* WinTab::GetImageList()
 inline
 void WinTab::SetImageList(WinImageList* ImageList)
 {
-	TabCtrl_SetImageList(_Handle, ImageList->GetHandle());
+	TabCtrl_SetImageList(handle, ImageList->GetHandle());
 	_ImageList = ImageList;
 }
 
@@ -149,12 +149,12 @@ WinTabPage WinTab::AddPage(std::wstring& Text, WinContainer* Container)
 inline
 int WinTab::GetPageCount()
 {
-	assert(TabCtrl_GetItemCount(_Handle) == _TabContainers.size());
-	return TabCtrl_GetItemCount(_Handle);
+	assert(TabCtrl_GetItemCount(handle) == _TabContainers.size());
+	return TabCtrl_GetItemCount(handle);
 }
 
 inline
 int WinTab::GetRowCount()
 {
-	return TabCtrl_GetRowCount(_Handle);
+	return TabCtrl_GetRowCount(handle);
 }

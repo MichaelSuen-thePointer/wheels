@@ -162,12 +162,12 @@ void WinListViewGroup::SetDescriptionBottom(std::wstring& Value)
 inline
 DWORD WinListView::InternalGetExStyle()
 {
-    return ListView_GetExtendedListViewStyle(_Handle);
+    return ListView_GetExtendedListViewStyle(handle);
 }
 inline
 void WinListView::InternalSetExStyle(DWORD ExStyle)
 {
-    ListView_SetExtendedListViewStyle(_Handle, ExStyle);
+    ListView_SetExtendedListViewStyle(handle, ExStyle);
 }
 inline
 WinImageList* WinListView::GetSmallImageList()
@@ -177,7 +177,7 @@ WinImageList* WinListView::GetSmallImageList()
 inline
 void WinListView::SetSmallImageList(WinImageList* ImageList)
 {
-    ListView_SetImageList(_Handle, ImageList->GetHandle(), LVSIL_SMALL);
+    ListView_SetImageList(handle, ImageList->GetHandle(), LVSIL_SMALL);
     _SmallImageList = ImageList;
 }
 inline
@@ -188,7 +188,7 @@ WinImageList* WinListView::GetLargeImageList()
 inline
 void WinListView::SetLargeImageList(WinImageList* ImageList)
 {
-    ListView_SetImageList(_Handle, ImageList->GetHandle(), LVSIL_NORMAL);
+    ListView_SetImageList(handle, ImageList->GetHandle(), LVSIL_NORMAL);
     _LargeImageList = ImageList;
 }
 inline
@@ -199,7 +199,7 @@ WinImageList* WinListView::GetStateImageList()
 inline
 void WinListView::SetStateImageList(WinImageList* ImageList)
 {
-    ListView_SetImageList(_Handle, ImageList->GetHandle(), LVSIL_STATE);
+    ListView_SetImageList(handle, ImageList->GetHandle(), LVSIL_STATE);
     _StateImageList = ImageList;
 }
 inline
@@ -210,48 +210,48 @@ WinImageList* WinListView::GetGroupImageList()
 inline
 void WinListView::SetGroupImageList(WinImageList* ImageList)
 {
-    ListView_SetImageList(_Handle, ImageList->GetHandle(), LVSIL_GROUPHEADER);
+    ListView_SetImageList(handle, ImageList->GetHandle(), LVSIL_GROUPHEADER);
     _GroupImageList = ImageList;
 }
 inline
 COLORREF WinListView::GetOutlineColor()
 {
-    return ListView_GetOutlineColor(_Handle);
+    return ListView_GetOutlineColor(handle);
 }
 inline
 void WinListView::SetOutlineColor(COLORREF Value)
 {
-    ListView_SetOutlineColor(_Handle, Value);
+    ListView_SetOutlineColor(handle, Value);
 }
 inline
 COLORREF WinListView::GetTextColor()
 {
-    return ListView_GetTextColor(_Handle);
+    return ListView_GetTextColor(handle);
 }
 inline
 void WinListView::SetTextColor(COLORREF Value)
 {
-    ListView_SetTextColor(_Handle, Value);
+    ListView_SetTextColor(handle, Value);
 }
 inline
 COLORREF WinListView::GetTextBackgroundColor()
 {
-    return ListView_GetTextBkColor(_Handle);
+    return ListView_GetTextBkColor(handle);
 }
 inline
 void WinListView::SetTextBackgroundColor(COLORREF Value)
 {
-    ListView_SetTextBkColor(_Handle, Value);
+    ListView_SetTextBkColor(handle, Value);
 }
 inline
 COLORREF WinListView::GetBackgroundColor()
 {
-    return ListView_GetBkColor(_Handle);
+    return ListView_GetBkColor(handle);
 }
 inline
 void WinListView::SetBackgroundColor(COLORREF Value)
 {
-    ListView_SetBkColor(_Handle, Value);
+    ListView_SetBkColor(handle, Value);
 }
 inline
 bool WinListView::GetAutoArrange()
@@ -416,32 +416,32 @@ void WinListView::SetSnapToGrid(bool Value)
 inline
 void WinListView::EditLabel(int Index)
 {
-    ListView_EditLabel(_Handle, Index);
+    ListView_EditLabel(handle, Index);
 }
 inline
 void WinListView::CancelEditLabel()
 {
-    ListView_CancelEditLabel(_Handle);
+    ListView_CancelEditLabel(handle);
 }
 inline
 void WinListView::Arrange()
 {
-    ListView_Arrange(_Handle, LVA_DEFAULT);
+    ListView_Arrange(handle, LVA_DEFAULT);
 }
 inline
 void WinListView::SnapToGrid()
 {
-    ListView_Arrange(_Handle, LVA_SNAPTOGRID);
+    ListView_Arrange(handle, LVA_SNAPTOGRID);
 }
 inline
 void WinListView::EnsureItemVisible(int Index, bool AcceptPartialVisible)
 {
-    ListView_EnsureVisible(_Handle, Index, (AcceptPartialVisible ? TRUE : FALSE));
+    ListView_EnsureVisible(handle, Index, (AcceptPartialVisible ? TRUE : FALSE));
 }
 inline
 int WinListView::GetItemCount()
 {
-    return ListView_GetItemCount(_Handle);
+    return ListView_GetItemCount(handle);
 }
 inline
 void WinListView::AddItem(std::wstring& Text, int ImageIndex)
@@ -451,37 +451,37 @@ void WinListView::AddItem(std::wstring& Text, int ImageIndex)
 inline
 void WinListView::DeleteItem(int Index)
 {
-    ListView_DeleteItem(_Handle, Index);
+    ListView_DeleteItem(handle, Index);
 }
 inline
 void WinListView::Clear()
 {
-    ListView_DeleteAllItems(_Handle);
+    ListView_DeleteAllItems(handle);
 }
 inline
 int WinListView::GetSelectedItemCount()
 {
-    return ListView_GetSelectedCount(_Handle);
+    return ListView_GetSelectedCount(handle);
 }
 inline
 int WinListView::GetSelectionItemMark()
 {
-    return ListView_GetSelectionMark(_Handle);
+    return ListView_GetSelectionMark(handle);
 }
 inline
 void WinListView::SetSelectionItemMark(int Value)
 {
-    ListView_SetSelectionMark(_Handle, Value);
+    ListView_SetSelectionMark(handle, Value);
 }
 inline
 int WinListView::GetHotItemIndex()
 {
-    return ListView_GetHotItem(_Handle);
+    return ListView_GetHotItem(handle);
 }
 inline
 void WinListView::SetHotItemIndex(int Value)
 {
-    ListView_SetHotItem(_Handle, Value);
+    ListView_SetHotItem(handle, Value);
 }
 inline
 int WinListView::GetColumnCount()
@@ -496,22 +496,22 @@ void WinListView::AddColumn(std::wstring& Text, int SubItemIndex)
 inline
 int WinListView::GetSelectedColumnIndex()
 {
-    return ListView_GetSelectedColumn(_Handle);
+    return ListView_GetSelectedColumn(handle);
 }
 inline
 void WinListView::SetSelectedColumnIndex(int Value)
 {
-    ListView_SetSelectedColumn(_Handle, Value);
+    ListView_SetSelectedColumn(handle, Value);
 }
 inline
 void WinListView::EnableGrouping(bool Value)
 {
-    ListView_EnableGroupView(_Handle, (Value ? TRUE : FALSE));
+    ListView_EnableGroupView(handle, (Value ? TRUE : FALSE));
 }
 inline
 int WinListView::GetGroupCount()
 {
-    return ListView_GetGroupCount(_Handle);
+    return ListView_GetGroupCount(handle);
 }
 inline
 int WinListView::AddGroup(std::wstring& Text)
@@ -521,7 +521,7 @@ int WinListView::AddGroup(std::wstring& Text)
 inline
 void WinListView::DeleteGroupByID(int ID)
 {
-    ListView_RemoveGroup(_Handle, ID);
+    ListView_RemoveGroup(handle, ID);
 }
 inline
 WinTreeViewItem::operator bool()
@@ -666,7 +666,7 @@ WinImageList* WinTreeView::GetNormalImageList()
 inline
 void WinTreeView::SetNormalImageList(WinImageList* ImageList)
 {
-    TreeView_SetImageList(_Handle, ImageList->GetHandle(), TVSIL_NORMAL);
+    TreeView_SetImageList(handle, ImageList->GetHandle(), TVSIL_NORMAL);
     _NormalImageList = ImageList;
 }
 inline
@@ -677,38 +677,38 @@ WinImageList* WinTreeView::GetStateImageList()
 inline
 void WinTreeView::SetStateImageList(WinImageList* ImageList)
 {
-    TreeView_SetImageList(_Handle, ImageList->GetHandle(), TVSIL_STATE);
+    TreeView_SetImageList(handle, ImageList->GetHandle(), TVSIL_STATE);
     _StateImageList = ImageList;
 }
 inline
 COLORREF WinTreeView::GetLineColor()
 {
-    return TreeView_GetLineColor(_Handle);
+    return TreeView_GetLineColor(handle);
 }
 inline
 void WinTreeView::SetLineColor(COLORREF Value)
 {
-    TreeView_SetLineColor(_Handle, Value);
+    TreeView_SetLineColor(handle, Value);
 }
 inline
 COLORREF WinTreeView::GetTextColor()
 {
-    return TreeView_GetTextColor(_Handle);
+    return TreeView_GetTextColor(handle);
 }
 inline
 void WinTreeView::SetTextColor(COLORREF Value)
 {
-    TreeView_SetTextColor(_Handle, Value);
+    TreeView_SetTextColor(handle, Value);
 }
 inline
 COLORREF WinTreeView::GetBackColor()
 {
-    return TreeView_GetBkColor(_Handle);
+    return TreeView_GetBkColor(handle);
 }
 inline
 void WinTreeView::SetBackColor(COLORREF Value)
 {
-    TreeView_SetBkColor(_Handle, Value);
+    TreeView_SetBkColor(handle, Value);
 }
 inline
 bool WinTreeView::GetShowCheckBoxes()
@@ -813,45 +813,45 @@ void WinTreeView::SetFadeButton(bool Value)
 inline
 void WinTreeView::EditLabel(WinTreeViewItem Item)
 {
-    TreeView_EditLabel(_Handle, Item._Item);
+    TreeView_EditLabel(handle, Item._Item);
 }
 inline
 void WinTreeView::FinishEditLabel()
 {
-    TreeView_EndEditLabelNow(_Handle, FALSE);
+    TreeView_EndEditLabelNow(handle, FALSE);
 }
 inline
 void WinTreeView::CancelEditLabel()
 {
-    TreeView_EndEditLabelNow(_Handle, TRUE);
+    TreeView_EndEditLabelNow(handle, TRUE);
 }
 inline
 WinTreeViewItem WinTreeView::GetFirstRoot()
 {
-    return WinTreeViewItem(_Handle, TreeView_GetRoot(_Handle));
+    return WinTreeViewItem(handle, TreeView_GetRoot(handle));
 }
 inline
 WinTreeViewItem WinTreeView::GetCurrentSelectedItem()
 {
-    return WinTreeViewItem(_Handle, TreeView_GetSelection(_Handle));
+    return WinTreeViewItem(handle, TreeView_GetSelection(handle));
 }
 inline
 WinTreeViewItem WinTreeView::GetFirstVisible()
 {
-    return WinTreeViewItem(_Handle, TreeView_GetFirstVisible(_Handle));
+    return WinTreeViewItem(handle, TreeView_GetFirstVisible(handle));
 }
 inline
 WinTreeViewItem WinTreeView::GetLastVisible()
 {
-    return WinTreeViewItem(_Handle, TreeView_GetLastVisible(_Handle));
+    return WinTreeViewItem(handle, TreeView_GetLastVisible(handle));
 }
 inline
 WinTreeViewItem WinTreeView::GetDropHighlighted()
 {
-    return WinTreeViewItem(_Handle, TreeView_GetDropHilight(_Handle));
+    return WinTreeViewItem(handle, TreeView_GetDropHilight(handle));
 }
 inline
 void WinTreeView::Clear()
 {
-    TreeView_DeleteAllItems(_Handle);
+    TreeView_DeleteAllItems(handle);
 }

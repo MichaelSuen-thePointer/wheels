@@ -18,14 +18,14 @@ class WinApplication: public Object
 	using ControlMap = std::map<HWND, WinControl*>;
 	using FormList = std::vector<WinForm*>;
 protected:
-	HINSTANCE _Instance;
-	ControlMap _Controls;
-	WinForm* _MainForm;
-	FormList _Forms;
+	HINSTANCE instance;
+	ControlMap controls;
+	WinForm* mainForm;
+	FormList forms;
 
-	WinPen::Ptr _Pen;
-	WinBrush::Ptr _Brush;
-	WinFont::Ptr _Font;
+	WinPen::Ptr pen;
+	WinBrush::Ptr brush;
+	WinFont::Ptr font;
 
 	bool ProcessMessage(bool InMessageLoop);
 	bool RegisterForm(WinForm* Form);

@@ -37,127 +37,127 @@ void WinTrack::SetAutoTicks(bool Value)
 inline
 int WinTrack::GetMin()
 {
-	return SendMessageW(_Handle, TBM_GETRANGEMIN, 0, 0);
+	return SendMessageW(handle, TBM_GETRANGEMIN, 0, 0);
 }
 
 inline
 void WinTrack::SetMin(int Value)
 {
-	SendMessageW(_Handle, TBM_SETRANGEMIN, TRUE, Value);
+	SendMessageW(handle, TBM_SETRANGEMIN, TRUE, Value);
 }
 
 inline
 int WinTrack::GetMax()
 {
-	return SendMessageW(_Handle, TBM_GETRANGEMAX, 0, 0);
+	return SendMessageW(handle, TBM_GETRANGEMAX, 0, 0);
 }
 
 inline
 void WinTrack::SetMax(int Value)
 {
-	SendMessageW(_Handle, TBM_SETRANGEMAX, TRUE, Value);
+	SendMessageW(handle, TBM_SETRANGEMAX, TRUE, Value);
 }
 
 inline
 int WinTrack::GetLineSize()
 {
-	return SendMessageW(_Handle, TBM_GETLINESIZE, 0, 0);
+	return SendMessageW(handle, TBM_GETLINESIZE, 0, 0);
 }
 
 inline
 void WinTrack::SetLineSize(int Value)
 {
-	SendMessageW(_Handle, TBM_SETLINESIZE, 0, Value);
+	SendMessageW(handle, TBM_SETLINESIZE, 0, Value);
 }
 
 inline
 int WinTrack::GetPageSize()
 {
-	return SendMessageW(_Handle, TBM_GETPAGESIZE, 0, 0);
+	return SendMessageW(handle, TBM_GETPAGESIZE, 0, 0);
 }
 
 inline
 void WinTrack::SetPageSize(int Value)
 {
-	SendMessageW(_Handle, TBM_SETPAGESIZE, 0, Value);
+	SendMessageW(handle, TBM_SETPAGESIZE, 0, Value);
 }
 
 inline
 int WinTrack::GetPosition()
 {
-	return SendMessageW(_Handle, TBM_GETPOS, 0, 0);
+	return SendMessageW(handle, TBM_GETPOS, 0, 0);
 }
 
 inline
 void WinTrack::SetPosition(int Value)
 {
-	SendMessageW(_Handle, TBM_SETPOS, TRUE, Value);
+	SendMessageW(handle, TBM_SETPOS, TRUE, Value);
 }
 
 inline
 int WinTrack::GetSelStart()
 {
-	return SendMessageW(_Handle, TBM_GETSELSTART, 0, 0);
+	return SendMessageW(handle, TBM_GETSELSTART, 0, 0);
 }
 
 inline
 void WinTrack::SetSelStart(int Value)
 {
-	SendMessageW(_Handle, TBM_SETSELSTART, TRUE, Value);
+	SendMessageW(handle, TBM_SETSELSTART, TRUE, Value);
 }
 
 inline
 int WinTrack::GetSelEnd()
 {
-	return SendMessageW(_Handle, TBM_GETSELEND, 0, 0);
+	return SendMessageW(handle, TBM_GETSELEND, 0, 0);
 }
 
 inline
 void WinTrack::SetSelEnd(int Value)
 {
-	SendMessageW(_Handle, TBM_SETSELEND, TRUE, Value);
+	SendMessageW(handle, TBM_SETSELEND, TRUE, Value);
 }
 
 inline
 void WinTrack::ClearSelection()
 {
-	SendMessageW(_Handle, TBM_CLEARSEL, TRUE, 0);
+	SendMessageW(handle, TBM_CLEARSEL, TRUE, 0);
 }
 
 inline
 void WinTrack::ClearTicks()
 {
-	SendMessageW(_Handle, TBM_CLEARTICS, TRUE, 0);
+	SendMessageW(handle, TBM_CLEARTICS, TRUE, 0);
 }
 
 inline
 int WinTrack::GetTicksCount()
 {
-	return SendMessageW(_Handle, TBM_GETNUMTICS, 0, 0);
+	return SendMessageW(handle, TBM_GETNUMTICS, 0, 0);
 }
 
 inline
 int WinTrack::GetTickPos(int Index)
 {
-	return SendMessageW(_Handle, TBM_GETTIC, Index, 0);
+	return SendMessageW(handle, TBM_GETTIC, Index, 0);
 }
 
 inline
 void WinTrack::SetTick(int Position)
 {
-	SendMessageW(_Handle, TBM_SETTIC, 0, Position);
+	SendMessageW(handle, TBM_SETTIC, 0, Position);
 }
 
 inline
 void WinTrack::BuildAutoTicks(int Value)
 {
-	SendMessageW(_Handle, TBM_SETTICFREQ, Value, 0);
+	SendMessageW(handle, TBM_SETTICFREQ, Value, 0);
 }
 
 inline
 void WinProgress::InternalSetMarquee()
 {
-	SendMessageW(_Handle, PBM_SETMARQUEE, (_MarqueeRunning ? TRUE : FALSE), _MarqueeInterval / 100);
+	SendMessageW(handle, PBM_SETMARQUEE, (_MarqueeRunning ? TRUE : FALSE), _MarqueeInterval / 100);
 }
 
 inline
@@ -199,73 +199,73 @@ void WinProgress::SetSmoothReverse(bool Value)
 inline
 COLORREF WinProgress::GetBarColor()
 {
-	return SendMessageW(_Handle, PBM_GETBARCOLOR, 0, 0);
+	return SendMessageW(handle, PBM_GETBARCOLOR, 0, 0);
 }
 
 inline
 void WinProgress::SetBarColor(COLORREF Value)
 {
-	SendMessageW(_Handle, PBM_SETBARCOLOR, 0, Value);
+	SendMessageW(handle, PBM_SETBARCOLOR, 0, Value);
 }
 
 inline
 COLORREF WinProgress::GetBackgroundColor()
 {
-	return SendMessageW(_Handle, PBM_GETBKCOLOR, 0, 0);
+	return SendMessageW(handle, PBM_GETBKCOLOR, 0, 0);
 }
 
 inline
 void WinProgress::SetBackgroundColor(COLORREF Value)
 {
-	SendMessageW(_Handle, PBM_SETBKCOLOR, 0, Value);
+	SendMessageW(handle, PBM_SETBKCOLOR, 0, Value);
 }
 
 inline
 int WinProgress::GetPosition()
 {
-	return SendMessageW(_Handle, PBM_GETPOS, 0, 0);
+	return SendMessageW(handle, PBM_GETPOS, 0, 0);
 }
 
 inline
 void WinProgress::SetPosition(int Value)
 {
-	SendMessageW(_Handle, PBM_SETPOS, Value, 0);
+	SendMessageW(handle, PBM_SETPOS, Value, 0);
 }
 
 inline
 int WinProgress::GetMin()
 {
-	return SendMessageW(_Handle, PBM_GETRANGE, TRUE, 0);
+	return SendMessageW(handle, PBM_GETRANGE, TRUE, 0);
 }
 
 inline
 void WinProgress::SetMin(int Value)
 {
-	SendMessageW(_Handle, PBM_SETRANGE32, Value, GetMax());
+	SendMessageW(handle, PBM_SETRANGE32, Value, GetMax());
 }
 
 inline
 int WinProgress::GetMax()
 {
-	return SendMessageW(_Handle, PBM_GETRANGE, FALSE, 0);
+	return SendMessageW(handle, PBM_GETRANGE, FALSE, 0);
 }
 
 inline
 void WinProgress::SetMax(int Value)
 {
-	SendMessageW(_Handle, PBM_SETRANGE32, GetMin(), Value);
+	SendMessageW(handle, PBM_SETRANGE32, GetMin(), Value);
 }
 
 inline
 int WinProgress::GetStep()
 {
-	return SendMessageW(_Handle, PBM_GETSTEP, 0, 0);
+	return SendMessageW(handle, PBM_GETSTEP, 0, 0);
 }
 
 inline
 void WinProgress::SetStep(int Value)
 {
-	SendMessageW(_Handle, PBM_SETSTEP, Value, 0);
+	SendMessageW(handle, PBM_SETSTEP, Value, 0);
 }
 
 inline

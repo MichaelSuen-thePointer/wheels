@@ -10,7 +10,7 @@ static const int TABPAGE_TEXT_BUFFER_SIZE = 1024;
 WinGroup::WinGroup(WinContainer* Parent)
 	: WinContainer()
 {
-	_CreateWindow(WS_EX_CONTROLPARENT,
+	InternalCreateWindow(WS_EX_CONTROLPARENT,
 				  WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_CHILD | BS_GROUPBOX,
 				  WC_BUTTON,
 				  Parent);
@@ -145,12 +145,12 @@ void WinTabPage::SetHighlighted(bool Value)
 
 DWORD WinTab::InternalGetExStyle()
 {
-	return TabCtrl_GetExtendedStyle(_Handle);
+	return TabCtrl_GetExtendedStyle(handle);
 }
 
 void WinTab::InternalSetExStyle(DWORD ExStyle)
 {
-	TabCtrl_SetExtendedStyle(_Handle, ExStyle);
+	TabCtrl_SetExtendedStyle(handle, ExStyle);
 }
 
 void WinTab::GetClientArea(RECT* Rect)
@@ -159,7 +159,7 @@ void WinTab::GetClientArea(RECT* Rect)
 	Rect->top = 0;
 	Rect->right = GetWidth();
 	Rect->bottom = GetHeight();
-	TabCtrl_AdjustRect(_Handle, FALSE, Rect);
+	TabCtrl_AdjustRect(handle, FALSE, Rect);
 }
 
 void WinTab::ArrangeTabContainers()
@@ -174,7 +174,7 @@ void WinTab::ArrangeTabContainers()
 
 void WinTab::ResetTopTabContainer()
 {
-	int Index = TabCtrl_GetCurSel(_Handle);
+	int Index = TabCtrl_GetCurSel(handle);
 	if (Index != -1)
 	{
 		for (auto& Elem : _TabContainers)
@@ -190,11 +190,11 @@ WinTab::WinTab(WinContainer* Parent)
 	, _ImageList(nullptr)
 	, _TabContainers()
 {
-	_CreateWindow(WS_EX_CONTROLPARENT,
+	InternalCreateWindow(WS_EX_CONTROLPARENT,
 				  WS_TABSTOP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_CHILD | TCS_FOCUSONBUTTONDOWN,
 				  WC_TABCONTROL,
 				  Parent);
-	TabCtrl_SetUnicodeFormat(_Handle, TRUE);
+	TabCtrl_SetUnicodeFormat(handle, TRUE);
 }
 
 WinTab::~WinTab()
@@ -242,7 +242,7 @@ WinTabPage WinTab::InsertPage(int Index, std::wstring& Text, WinContainer* Conta
 	TCITEMW Item;
 	FillTabPageItem(&Item, TCIF_TEXT);
 	Item.pszText = &Text[0];
-	Index = TabCtrl_InsertItem(_Handle, Index, &Item);
+	Index = TabCtrl_InsertItem(handle, Index, &Item);
 	if (Index == -1)
 	{
 		return WinTabPage();
@@ -262,14 +262,14 @@ WinTabPage WinTab::InsertPage(int Index, std::wstring& Text, WinContainer* Conta
 		_TabContainers.insert(_TabContainers.begin() + Index, Container);
 		ResetTopTabContainer();
 		ArrangeTabContainers();
-		return WinTabPage(_Handle, Index, Container);
+		return WinTabPage(handle, Index, Container);
 	}
 }
 
 void WinTab::DeletePage(int Index)
 {
 	assert(Index >= 0 && Index < GetPageCount());
-	if (TabCtrl_DeleteItem(_Handle, Index) == TRUE)
+	if (TabCtrl_DeleteItem(handle, Index) == TRUE)
 	{
 		delete _TabContainers[Index];
 		_TabContainers.erase(_TabContainers.begin() + Index);
@@ -280,24 +280,24 @@ void WinTab::DeletePage(int Index)
 WinTabPage WinTab::GetPage(int Index)
 {
 	assert(Index >= 0 && Index < GetPageCount());
-	return WinTabPage(_Handle, Index, _TabContainers[Index]);
+	return WinTabPage(handle, Index, _TabContainers[Index]);
 }
 
 WinTabPage WinTab::GetSelectedPage()
 {
-	int Index = TabCtrl_GetCurSel(_Handle);
+	int Index = TabCtrl_GetCurSel(handle);
 	if (Index == -1)
 	{
 		return WinTabPage();
 	}
-	return WinTabPage(_Handle, Index, _TabContainers[Index]);
+	return WinTabPage(handle, Index, _TabContainers[Index]);
 }
 
 void WinTab::SetSelectedPage(WinTabPage Page)
 {
 	if (Page)
 	{
-		TabCtrl_SetCurSel(_Handle, Page._Index);
+		TabCtrl_SetCurSel(handle, Page._Index);
 		ResetTopTabContainer();
 		OnSelChanged(this);
 	}

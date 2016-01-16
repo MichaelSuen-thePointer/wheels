@@ -8,7 +8,7 @@ namespace windows
 WinCustomButton::WinCustomButton(WinContainer* Parent, DWORD Style)
 	: WinControl()
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  Style | BS_NOTIFY | BS_BITMAP | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
 				  WC_BUTTON,
 				  Parent);
@@ -107,9 +107,9 @@ WinCommandLink::WinCommandLink(WinContainer* Parent)
 std::wstring WinCommandLink::GetNote()
 {
 	DWORD Length = 0;
-	SendMessageW(_Handle, BCM_GETNOTE, reinterpret_cast<WPARAM>(&Length), reinterpret_cast<LPARAM>(&Length));
+	SendMessageW(handle, BCM_GETNOTE, reinterpret_cast<WPARAM>(&Length), reinterpret_cast<LPARAM>(&Length));
 	wchar_t* Buffer = new wchar_t[Length + 1];
-	SendMessageW(_Handle, BCM_GETNOTE, reinterpret_cast<WPARAM>(&Length), reinterpret_cast<LPARAM>(Buffer));
+	SendMessageW(handle, BCM_GETNOTE, reinterpret_cast<WPARAM>(&Length), reinterpret_cast<LPARAM>(Buffer));
 	std::wstring Note(Buffer);
 	delete[] Buffer;
 	return Note;
@@ -117,7 +117,7 @@ std::wstring WinCommandLink::GetNote()
 
 void WinCommandLink::SetNote(const std::wstring& Note)
 {
-	SendMessageW(_Handle, BCM_SETNOTE, 0, reinterpret_cast<LPARAM>(Note.c_str()));
+	SendMessageW(handle, BCM_SETNOTE, 0, reinterpret_cast<LPARAM>(Note.c_str()));
 }
 
 WinCheck::WinCheck(WinContainer* Parent)
@@ -126,7 +126,7 @@ WinCheck::WinCheck(WinContainer* Parent)
 
 WinRadio::WinRadio(WinContainer* Parent)
 	: WinCustomChecked(Parent, BS_RADIOBUTTON | BS_LEFT | BS_VCENTER)
-	, _GroupNumber(-1)
+	, groupNumber(-1)
 {}
 
 LRESULT WinRadio::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam, bool& CallDefaultProc)
@@ -156,10 +156,10 @@ void WinRadio::SetChecked(bool Value)
 {
 	if (Value)
 	{
-		for (WinControl* Control : *_Parent)
+		for (WinControl* Control : *parent)
 		{
 			WinRadio* Radio = dynamic_cast<WinRadio*>(Control);
-			if (Radio && Radio != this && Radio->_GroupNumber == _GroupNumber)
+			if (Radio && Radio != this && Radio->groupNumber == groupNumber)
 			{
 				Radio->SetChecked(false);
 			}

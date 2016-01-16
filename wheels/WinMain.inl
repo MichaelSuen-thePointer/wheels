@@ -1,7 +1,7 @@
 inline
 HINSTANCE WinApplication::GetInstance()
 {
-	return _Instance;
+	return instance;
 }
 
 inline
@@ -13,23 +13,23 @@ void WinApplication::DoEvents()
 inline
 WinForm* WinApplication::GetMainForm()
 {
-	return _MainForm;
+	return mainForm;
 }
 
 inline
 WinPen::Ptr WinApplication::GetDefaultPen()
 {
-	return _Pen;
+	return pen;
 }
 
 inline
 WinBrush::Ptr WinApplication::GetDefaultBrush()
 {
-	return _Brush;
+	return brush;
 }
 
 inline
 WinFont::Ptr WinApplication::GetDefaultFont()
 {
-	return _Font;
+	return font;
 }

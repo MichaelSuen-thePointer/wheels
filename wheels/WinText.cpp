@@ -8,7 +8,7 @@ namespace windows
 WinEdit::WinEdit(WinContainer* Parent, bool Multiline, bool AlwaysShowSelection)
 	: WinControl()
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_LEFT | (AlwaysShowSelection ? ES_NOHIDESEL : 0) | (Multiline ? ES_MULTILINE : 0) | ES_WANTRETURN,
 				  WC_EDIT,
 				  Parent);
@@ -114,9 +114,9 @@ void WinEdit::SetCharDisplay(EditCharDisplay Display)
 
 std::wstring WinEdit::GetLine(int Index)
 {
-	int Length = SendMessageW(_Handle, EM_LINELENGTH, Index, 0);
+	int Length = SendMessageW(handle, EM_LINELENGTH, Index, 0);
 	wchar_t* Buffer = new wchar_t[Length + 1];
-	SendMessageW(_Handle, EM_GETLINE, Index, reinterpret_cast<LPARAM>(Buffer));
+	SendMessageW(handle, EM_GETLINE, Index, reinterpret_cast<LPARAM>(Buffer));
 	std::wstring Result(Buffer, Length);
 	delete[] Buffer;
 	return Result;
@@ -125,7 +125,7 @@ std::wstring WinEdit::GetLine(int Index)
 WinStatic::WinStatic(WinContainer* Parent)
 	: WinContainer()
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | SS_LEFT | SS_NOTIFY | SS_NOPREFIX,
 				  WC_STATIC,
 				  Parent);
@@ -223,7 +223,7 @@ WinListBox::WinListBox(WinContainer* Parent, ListBoxStyle Style)
 		ListStyle = LBS_EXTENDEDSEL | LBS_MULTIPLESEL;
 		break;
 	}
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_VSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
 				  LBS_HASSTRINGS | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | ListStyle,
 				  WC_LISTBOX,
@@ -267,7 +267,7 @@ int WinListBox::GetSelectedIndex()
 	}
 	else
 	{
-		int Result = SendMessageW(_Handle, LB_GETCURSEL, 0, 0);
+		int Result = SendMessageW(handle, LB_GETCURSEL, 0, 0);
 		return Result == LB_ERR ? -1 : Result;
 	}
 }
@@ -279,7 +279,7 @@ void WinListBox::GetSelectedIndices(std::vector<int>& Indices)
 	{
 		int Count = GetCount();
 		int* Buffer = new int[Count];
-		int Result = SendMessageW(_Handle, LB_GETSELITEMS, Count, (LPARAM)Buffer);
+		int Result = SendMessageW(handle, LB_GETSELITEMS, Count, (LPARAM)Buffer);
 		Indices.insert(Indices.end(), Buffer, Buffer + Count);
 		delete[] Buffer;
 	}
@@ -287,7 +287,7 @@ void WinListBox::GetSelectedIndices(std::vector<int>& Indices)
 
 std::wstring WinListBox::GetString(int Index)
 {
-	int Count = SendMessageW(_Handle, LB_GETTEXTLEN, Index, 0);
+	int Count = SendMessageW(handle, LB_GETTEXTLEN, Index, 0);
 	if (Count == LB_ERR)
 	{
 		return L"";
@@ -295,7 +295,7 @@ std::wstring WinListBox::GetString(int Index)
 	else
 	{
 		wchar_t* Buffer = new wchar_t[Count + 1];
-		SendMessageW(_Handle, LB_GETTEXT, Index, reinterpret_cast<LPARAM>(Buffer));
+		SendMessageW(handle, LB_GETTEXT, Index, reinterpret_cast<LPARAM>(Buffer));
 		std::wstring Result(Buffer);
 		delete[] Buffer;
 		return Result;
@@ -304,7 +304,7 @@ std::wstring WinListBox::GetString(int Index)
 
 WinComboBox::WinComboBox(WinContainer* Parent, bool ReadOnly)
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | CBS_AUTOHSCROLL | CBS_HASSTRINGS | (ReadOnly ? CBS_DROPDOWNLIST : CBS_DROPDOWN),
 				  WC_COMBOBOX,
 				  Parent);
@@ -357,7 +357,7 @@ LRESULT WinComboBox::ProcessMessage(UINT Message, WPARAM& wParam, LPARAM& lParam
 
 std::wstring WinComboBox::GetString(int Index)
 {
-	int Length = SendMessageW(_Handle, CB_GETLBTEXTLEN, Index, 0);
+	int Length = SendMessageW(handle, CB_GETLBTEXTLEN, Index, 0);
 	if (Length == CB_ERR)
 	{
 		return L"";
@@ -365,7 +365,7 @@ std::wstring WinComboBox::GetString(int Index)
 	else
 	{
 		wchar_t* Buffer = new wchar_t[Length + 1];
-		SendMessage(_Handle, CB_GETLBTEXT, Index, reinterpret_cast<LPARAM>(Buffer));
+		SendMessage(handle, CB_GETLBTEXT, Index, reinterpret_cast<LPARAM>(Buffer));
 		std::wstring Result(Buffer);
 		delete[] Buffer;
 		return Result;
@@ -575,13 +575,13 @@ void WinStatus::RefreshItem(int Index)
 		wParam |= SBT_NOBORDERS;
 	}
 	std::wstring Text = _Items[Index].TextLeft + L'\t' + _Items[Index].TextCenter + L'\t' + _Items[Index].TextRight;
-	SendMessage(_Handle, SB_SETTEXT, wParam, reinterpret_cast<LPARAM>(Text.c_str()));
+	SendMessage(handle, SB_SETTEXT, wParam, reinterpret_cast<LPARAM>(Text.c_str()));
 }
 
 void WinStatus::RefreshItems()
 {
 	int Borders[3];
-	SendMessage(_Handle, SB_GETBORDERS, 0, (LPARAM)Borders);
+	SendMessage(handle, SB_GETBORDERS, 0, (LPARAM)Borders);
 	int w = Borders[0];
 	int h = Borders[1];
 	int s = Borders[2];
@@ -600,7 +600,7 @@ void WinStatus::RefreshItems()
 			CurrentRight += s;
 		}
 	}
-	SendMessageW(_Handle, SB_SETPARTS, _Items.size(), (LPARAM)Rights);
+	SendMessageW(handle, SB_SETPARTS, _Items.size(), (LPARAM)Rights);
 	for (int i = 0; i < _Items.size(); i++)
 	{
 		RefreshItem(i);
@@ -609,11 +609,11 @@ void WinStatus::RefreshItems()
 
 WinStatus::WinStatus(WinContainer* Parent)
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | SBARS_SIZEGRIP,
 				  STATUSCLASSNAME,
 				  Parent);
-	SendMessageW(_Handle, SB_SETUNICODEFORMAT, TRUE, 0);
+	SendMessageW(handle, SB_SETUNICODEFORMAT, TRUE, 0);
 }
 
 WinStatus::~WinStatus()

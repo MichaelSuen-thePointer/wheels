@@ -65,7 +65,7 @@ public:
 class WinRadio: public WinCustomChecked
 {
 protected:
-	int _GroupNumber;
+	int groupNumber;
 public:
 	WinRadio(WinContainer* Parent);
 

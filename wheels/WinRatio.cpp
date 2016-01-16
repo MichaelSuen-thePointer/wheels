@@ -10,20 +10,20 @@ void WinScroll::GetInfo(SCROLLINFO& Info)
 	memset(&Info, 0, sizeof(Info));
 	Info.cbSize = sizeof(Info);
 	Info.fMask = SIF_ALL;
-	SendMessageW(_Handle, SBM_GETSCROLLINFO, FALSE, reinterpret_cast<LPARAM>(&Info));
+	SendMessageW(handle, SBM_GETSCROLLINFO, FALSE, reinterpret_cast<LPARAM>(&Info));
 }
 
 void WinScroll::SetInfo(SCROLLINFO& Info)
 {
 	Info.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-	SendMessageW(_Handle, SBM_SETSCROLLINFO, TRUE, reinterpret_cast<LPARAM>(&Info));
+	SendMessageW(handle, SBM_SETSCROLLINFO, TRUE, reinterpret_cast<LPARAM>(&Info));
 }
 
 WinScroll::WinScroll(WinContainer* Parent, bool Horizontal)
 	: WinControl()
 	, _LineSize(1)
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | (Horizontal ? SBS_HORZ : SBS_VERT),
 				  WC_SCROLLBAR,
 				  Parent);
@@ -220,11 +220,11 @@ void WinTrack::SetTickVisible(bool Top, bool Bottom)
 WinTrack::WinTrack(WinContainer* Parent, bool Horizontal)
 	: WinControl()
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | (Horizontal ? TBS_HORZ : TBS_VERT) | TBS_BOTTOM | TBS_RIGHT,
 				  TRACKBAR_CLASSW,
 				  Parent);
-	SendMessageW(_Handle, TBM_SETUNICODEFORMAT, TRUE, 0);
+	SendMessageW(handle, TBM_SETUNICODEFORMAT, TRUE, 0);
 	SetMax(10);
 }
 WinTrack::~WinTrack()
@@ -323,7 +323,7 @@ void WinTrack::GetAdditionalTicks(std::vector<int>& TickPos)
 	else
 	{
 		TickPos.reserve(Count);
-		DWORD* Ticks = reinterpret_cast<DWORD*>(SendMessageW(_Handle, TBM_GETPTICS, 0, 0));
+		DWORD* Ticks = reinterpret_cast<DWORD*>(SendMessageW(handle, TBM_GETPTICS, 0, 0));
 		TickPos.insert(TickPos.end(), Ticks, Ticks + Count);
 	}
 }
@@ -332,7 +332,7 @@ WinProgress::WinProgress(WinContainer* Parent, bool Horizontal)
 	: _MarqueeRunning(true)
 	, _MarqueeInterval(5000)
 {
-	_CreateWindow(0,
+	InternalCreateWindow(0,
 				  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | (Horizontal ? 0 : PBS_VERTICAL),
 				  PROGRESS_CLASSW,
 				  Parent);

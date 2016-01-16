@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WINCLASS_H
 #define WINCLASS_H
 
@@ -5,7 +6,7 @@
 #include <vector>
 #include <string>
 #include "Event.h"
-#include <memory>
+#include "Pointer.h"
 #include <map>
 
 #include "WinGDI.h"
@@ -350,18 +351,18 @@ public:
 class WinControl: public Object
 {
 protected:
-    HWND _Handle;
-    bool _MouseEntered;
-    bool _HoverOnce;
-    bool _EnableHover;
-    int _HoverTime;
-    int _LastX;
-    int _LastY;
-    WinContainer* _Parent;
-    WinFont::Ptr _Font;
-    bool _SubClassed;
+    HWND handle;
+    bool isMouseEntered;
+    bool isHoverOnce;
+    bool isEnableHover;
+    int hoverTime;
+    int lastX;
+    int lastY;
+    WinContainer* parent;
+    WinFont::Ptr font;
+    bool isSubClass;
 
-    bool _CreateWindow(DWORD ExStyle, DWORD Style, const wchar_t* ClassName, WinContainer* Parent);
+    bool InternalCreateWindow(DWORD ExStyle, DWORD Style, const wchar_t* ClassName, WinContainer* Parent);
 
     virtual DWORD InternalGetExStyle();
     virtual void InternalSetExStyle(DWORD ExStyle);
@@ -466,8 +467,8 @@ class WinContainer: public WinControl
 {
     friend class WinControl;
 protected:
-    WinControlList _Controls;
-    Placement* _Placement;
+    WinControlList controls;
+    Placement* placement;
 
     void RegisterChild(WinControl* Control);
     void UnregisterChild(WinControl* Control);
@@ -520,16 +521,16 @@ class WinForm: public WinContainer
     friend WinMenu;
     friend WinMenuItem;
 protected:
-    bool _IsMainForm;
-    bool _Created;
+    bool isMainForm;
+    bool hasCreated;
 
-    std::vector<int> _HotKeys;
-    WinTimerList _TimerList;
-    WinMenuList _MenuList;
-    WinFormMenu* _FormMenu;
-    WinMenuItemMap _MenuItemMap;
-    int _UsedMenuItemHandle;
-    std::vector<int> _FreeMenuItemHandles;
+    std::vector<int> hotKeys;
+    WinTimerList timerList;
+    WinMenuList menuList;
+    WinFormMenu* formMenu;
+    WinMenuItemMap menuItemMap;
+    int usedMenuItemHandle;
+    std::vector<int> freeMenuItemHandles;
 
     int RegisterOwned(WinTimer* Timer);
     void UnregisterOwned(WinTimer* Timer);
@@ -612,10 +613,10 @@ public:
 class WinTimer: public Object
 {
 protected:
-    WinForm* _Owner;
-    UINT_PTR _Handle;
-    int _Interval;
-    bool _Enabled;
+    WinForm* owner;
+    UINT_PTR handle;
+    int interval;
+    bool enabled;
 public:
     NotifyEvent OnTimer;
 
@@ -635,7 +636,7 @@ public:
 class WinImageList: public Object
 {
 protected:
-    HIMAGELIST _Handle;
+    HIMAGELIST handle;
     WinBitmap::Ptr CheckBitmap(WinBitmap::Ptr Bitmap);
     //WinBitmap::Pointer CreateMask(WinBitmap::Pointer Bitmap);
 public:
@@ -665,12 +666,12 @@ class WinMenu: public Object
 {
     friend class WinMenuItem;
 protected:
-    HMENU _Handle;
-    WinForm* _Owner;
-    WinForm* _MessageDispatcher;
-    bool _Associated;
-    WinMenuItemList _MenuItems;
-    WinMenuItem* _AssociatedMenuItem;
+    HMENU handle;
+    WinForm* owner;
+    WinForm* messageDispatcher;
+    bool isAssociated;
+    WinMenuItemList menItems;
+    WinMenuItem* associatedMenuItems;
 
     virtual void ItemChanged();
 public:
@@ -696,20 +697,20 @@ class WinMenuItem: public Object, public IAcceleratorReceiver
 {
     friend WinMenu;
 protected:
-    WinMenu* _Owner;
-    int _Handle;
-    WinPopupMenu* _SubMenu;
-    WinBitmap::Ptr _CheckedBitmap;
-    WinBitmap::Ptr _UncheckedBitmap;
+    WinMenu* owner;
+    int handle;
+    WinPopupMenu* subMenu;
+    WinBitmap::Ptr checkedBitmap;
+    WinBitmap::Ptr uncheckedBitmap;
 
-    bool _Checked;
-    bool _Separator;
-    bool _RadioCheck;
-    int _RadioGroup;
-    bool _Enabled;
-    bool _Highlighted;
-    std::wstring _Text;
-    std::wstring _MenuText;
+    bool isChecked;
+    bool isSeparator;
+    bool isRadioCheck;
+    int radioGroup;
+    bool isEnabled;
+    bool isHighlighted;
+    std::wstring text;
+    std::wstring menuText;
 
     void OnAttachAcceleratorItem() override;
     void OnDetachAcceleratorItem() override;
@@ -762,7 +763,7 @@ class WinFormMenu: public WinMenu
 {
     friend class WinForm;
 protected:
-    WinForm* _Parent;
+    WinForm* parent;
     void ItemChanged() override;
 public:
     WinFormMenu(WinForm* Owner);

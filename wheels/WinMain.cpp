@@ -83,27 +83,27 @@ bool WinApplication::ProcessMessage(bool InMessageLoop)
 
 bool WinApplication::RegisterForm(WinForm* Form)
 {
-    if (std::find(_Forms.begin(), _Forms.end(), Form) == _Forms.end())
+    if (std::find(forms.begin(), forms.end(), Form) == forms.end())
     {
-        _Forms.push_back(Form);
+        forms.push_back(Form);
     }
-    if (_MainForm)
+    if (mainForm)
     {
         return false;
     }
     else
     {
-        _MainForm = Form;
+        mainForm = Form;
         return true;
     }
 }
 
 void WinApplication::UnregisterForm(WinForm* Form)
 {
-    auto Place = std::find(_Forms.begin(), _Forms.end(), Form);
-    if (Place != _Forms.end())
+    auto Place = std::find(forms.begin(), forms.end(), Form);
+    if (Place != forms.end())
     {
-        _Forms.erase(Place);
+        forms.erase(Place);
     }
 }
 
@@ -120,25 +120,25 @@ void WinApplication::RunModal(WinForm* Form)
 }
 
 WinApplication::WinApplication(HINSTANCE hInstance)
-    : _Instance(hInstance)
-    , _Controls()
-    , _MainForm(nullptr)
-    , _Forms()
-    , _Pen(new WinPen(PS_SOLID, 0, RGB(0, 0, 0)))
-    , _Brush(new WinBrush(RGB(255, 255, 255)))
-    , _Font(new WinFont(L"Î¢ÈíÑÅºÚ", 0, 0, 0, 0, 400, false, false, false, true))
+    : instance(hInstance)
+    , controls()
+    , mainForm(nullptr)
+    , forms()
+    , pen(new WinPen(PS_SOLID, 0, RGB(0, 0, 0)))
+    , brush(new WinBrush(RGB(255, 255, 255)))
+    , font(new WinFont(L"Î¢ÈíÑÅºÚ", 0, 0, 0, 0, 400, false, false, false, true))
 {}
 
 std::wstring WinApplication::GetAppName()
 {
     wchar_t Buffer[1024];
-    GetModuleFileNameW(_Instance, Buffer, sizeof(Buffer) / sizeof(Buffer[0]));
+    GetModuleFileNameW(instance, Buffer, sizeof(Buffer) / sizeof(Buffer[0]));
     return Buffer;
 }
 
 void WinApplication::Run()
 {
-    if (_Forms.size() > 0)
+    if (forms.size() > 0)
     {
         while (ProcessMessage(true))
         {
@@ -149,8 +149,8 @@ void WinApplication::Run()
 
 WinControl* WinApplication::GetControl(HWND Handle)
 {
-    auto Place = _Controls.find(Handle);
-    if (Place != _Controls.end())
+    auto Place = controls.find(Handle);
+    if (Place != controls.end())
     {
         return Place->second;
     }
@@ -160,19 +160,19 @@ WinControl* WinApplication::GetControl(HWND Handle)
 void WinApplication::Terminate()
 {
     int i = 0;
-    while (_Forms.size() > i)
+    while (forms.size() > i)
     {
-        if (_Forms[i] == _MainForm)
+        if (forms[i] == mainForm)
         {
             i++;
             continue;
         }
-        delete _Forms[i];
+        delete forms[i];
     }
-    if (_MainForm)
+    if (mainForm)
     {
-        delete _MainForm;
-        _MainForm = nullptr;
+        delete mainForm;
+        mainForm = nullptr;
     }
     PostQuitMessage(0);
 }

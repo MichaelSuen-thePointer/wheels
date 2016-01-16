@@ -1,4 +1,4 @@
-#include "WinClass.h"
+
 extern AcceleratorManager* _AcceleratorManager;
 
 inline
@@ -204,57 +204,57 @@ ATOM WinClass::GetClassAtom()
 inline
 void WinControl::SetWindowPosSize(int& Left, int& Top, int& Width, int& Height)
 {
-    MoveWindow(_Handle, Left, Top, Width, Height, TRUE);
+    MoveWindow(handle, Left, Top, Width, Height, TRUE);
 }
 
 inline
 HWND WinControl::GetHandle()
 {
-    return _Handle;
+    return handle;
 }
 
 inline
 WinContainer* WinControl::GetParent()
 {
-    return _Parent;
+    return parent;
 }
 
 inline
 bool WinControl::GetEnableHover()
 {
-    return _EnableHover;
+    return isEnableHover;
 }
 
 inline
 void WinControl::SetEnableHover(bool Value)
 {
-    _EnableHover = Value;
-    if (_EnableHover)
+    isEnableHover = Value;
+    if (isEnableHover)
     {
-        TrackMouse(true, _HoverTime);
+        TrackMouse(true, hoverTime);
     }
 }
 
 inline
 bool WinControl::GetHoverOnce()
 {
-    return _HoverOnce;
+    return isHoverOnce;
 }
 
 inline
 void WinControl::SetHoverOnce(bool Value)
 {
-    _HoverOnce = Value;
-    if (!_HoverOnce && _EnableHover)
+    isHoverOnce = Value;
+    if (!isHoverOnce && isEnableHover)
     {
-        TrackMouse(true, _HoverTime);
+        TrackMouse(true, hoverTime);
     }
 }
 
 inline
 int WinControl::GetHoverTime()
 {
-    return _HoverTime;
+    return hoverTime;
 }
 
 inline
@@ -262,48 +262,48 @@ void WinControl::SetHoverTime(int Value)
 {
     if (Value >= 0)
     {
-        _HoverTime = Value;
+        hoverTime = Value;
     }
     else
     {
-        _HoverTime = -1;
+        hoverTime = -1;
     }
 }
 
 inline
 bool WinControl::GetEnabled()
 {
-    return IsWindowEnabled(_Handle) != 0;
+    return IsWindowEnabled(handle) != 0;
 }
 
 inline
 void WinControl::SetEnabled(bool Value)
 {
-    EnableWindow(_Handle, Value ? TRUE : FALSE);
+    EnableWindow(handle, Value ? TRUE : FALSE);
 }
 
 inline
 bool WinControl::GetVisible()
 {
-    return IsWindowVisible(_Handle) != 0;
+    return IsWindowVisible(handle) != 0;
 }
 
 inline
 void WinControl::SetVisible(bool Value)
 {
-    ShowWindow(_Handle, Value ? SW_SHOW : SW_HIDE);
+    ShowWindow(handle, Value ? SW_SHOW : SW_HIDE);
 }
 
 inline
 bool WinControl::GetFocused()
 {
-    return GetFocus() == _Handle;
+    return GetFocus() == handle;
 }
 
 inline
 void WinControl::SetFocused()
 {
-    SetFocus(_Handle);
+    SetFocus(handle);
 }
 
 inline
@@ -321,30 +321,30 @@ void WinControl::SetAcceptFiles(bool Value)
 inline
 WinFont::Ptr WinControl::GetFont()
 {
-    return _Font;
+    return font;
 }
 
 inline
 void WinControl::SetFont(WinFont::Ptr Font)
 {
-    _Font = Font;
-    SendMessage(_Handle, WM_SETFONT, reinterpret_cast<WPARAM>(_Font->GetHandle()), TRUE);
+    font = Font;
+    SendMessageW(handle, WM_SETFONT, reinterpret_cast<WPARAM>(font->GetHandle()), TRUE);
 }
 
 inline
 void WinContainer::GetClientArea(RECT* Rect)
 {
-    GetClientRect(_Handle, Rect);
+    GetClientRect(handle, Rect);
 }
 
 inline
 Placement* WinContainer::GetPlacement()
 {
-    if (!_Placement)
+    if (!placement)
     {
-        _Placement = new Placement(this);
+        placement = new Placement(this);
     }
-    return _Placement;
+    return placement;
 }
 
 inline
@@ -356,13 +356,13 @@ void WinContainer::ApplyPlacement(placement::Base::Pointer Placement)
 inline
 int WinContainer::GetControlCount()
 {
-    return _Controls.size();
+    return controls.size();
 }
 
 inline
 WinControl* WinContainer::GetControl(int Index)
 {
-    return _Controls[Index];
+    return controls[Index];
 }
 
 inline
@@ -420,26 +420,26 @@ void WinContainer::SetClientHeight(int Value)
 inline
 WinControlList::iterator pl::windows::WinContainer::begin()
 {
-    return _Controls.begin();
+    return controls.begin();
 }
 
 inline
 WinControlList::iterator pl::windows::WinContainer::end()
 {
-    return _Controls.end();
+    return controls.end();
 }
 
 inline
 void WinForm::RegisterMenuItem(int Handle, WinMenuItem* Item)
 {
-    _MenuItemMap.insert({Handle, Item});
+    menuItemMap.insert({Handle, Item});
 }
 
 inline
 void WinForm::UnregisterMenuItem(int Handle)
 {
-    _MenuItemMap.erase(Handle);
-    _FreeMenuItemHandles.push_back(Handle);
+    menuItemMap.erase(Handle);
+    freeMenuItemHandles.push_back(Handle);
 }
 
 inline
@@ -506,7 +506,7 @@ inline
 void WinForm::SetTopMost(bool Value)
 {
     SetExStyle(WS_EX_TOPMOST, Value);
-    SetWindowPos(_Handle, Value ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_DRAWFRAME);
+    SetWindowPos(handle, Value ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_DRAWFRAME);
 }
 
 inline
@@ -548,43 +548,43 @@ void WinForm::SetToolWindow(bool Value)
 inline
 bool WinForm::GetActived()
 {
-    return GetActiveWindow() == _Handle;
+    return GetActiveWindow() == handle;
 }
 
 inline
 void WinForm::SetActived()
 {
-    SetActiveWindow(_Handle);
+    SetActiveWindow(handle);
 }
 
 inline
 void WinForm::Show()
 {
-    ShowWindow(_Handle, SW_SHOWNORMAL);
+    ShowWindow(handle, SW_SHOWNORMAL);
 }
 
 inline
 void WinForm::ShowRestored()
 {
-    ShowWindow(_Handle, SW_RESTORE);
+    ShowWindow(handle, SW_RESTORE);
 }
 
 inline
 void WinForm::ShowMinimized()
 {
-    ShowWindow(_Handle, SW_SHOWMINIMIZED);
+    ShowWindow(handle, SW_SHOWMINIMIZED);
 }
 
 inline
 void WinForm::ShowMaximized()
 {
-    ShowWindow(_Handle, SW_SHOWMAXIMIZED);
+    ShowWindow(handle, SW_SHOWMAXIMIZED);
 }
 
 inline
 void WinForm::Close()
 {
-    CloseWindow(_Handle);
+    CloseWindow(handle);
 }
 
 inline
@@ -596,56 +596,56 @@ void WinForm::DestroyForm()
 inline
 WinFormMenu* WinForm::GetFormMenu()
 {
-    return _FormMenu;
+    return formMenu;
 }
 
 inline
 UINT_PTR WinTimer::GetHandle()
 {
-    return _Handle;
+    return handle;
 }
 
 inline
 WinForm* WinTimer::GetOwner()
 {
-    return _Owner;
+    return owner;
 }
 
 inline
 int WinTimer::GetInterval()
 {
-    return _Interval;
+    return interval;
 }
 
 inline 
 bool WinTimer::GetEnabled()
 {
-    return _Enabled;
+    return enabled;
 }
 
 inline
 HIMAGELIST WinImageList::GetHandle()
 {
-    return _Handle;
+    return handle;
 }
 
 inline
 void WinImageList::Remove(int Index)
 {
-    ImageList_Remove(_Handle, Index);
+    ImageList_Remove(handle, Index);
 }
 
 inline
 int WinImageList::GetCount()
 {
-    return ImageList_GetImageCount(_Handle);
+    return ImageList_GetImageCount(handle);
 }
 
 inline
 int WinImageList::GetImageWidth()
 {
     int X, Y;
-    ImageList_GetIconSize(_Handle, &X, &Y);
+    ImageList_GetIconSize(handle, &X, &Y);
     return Y;
 }
 
@@ -653,14 +653,14 @@ inline
 int WinImageList::GetImageHeight()
 {
     int X, Y;
-    ImageList_GetIconSize(_Handle, &X, &Y);
+    ImageList_GetIconSize(handle, &X, &Y);
     return Y;
 }
 
 inline
 COLORREF WinImageList::GetBackgroundColor()
 {
-    COLORREF Color = ImageList_GetBkColor(_Handle);
+    COLORREF Color = ImageList_GetBkColor(handle);
     if (Color == CLR_NONE)
     {
         Color = 0;
@@ -671,13 +671,13 @@ COLORREF WinImageList::GetBackgroundColor()
 inline
 void WinImageList::SetBackgroundColor(COLORREF Color)
 {
-    ImageList_SetBkColor(_Handle, Color);
+    ImageList_SetBkColor(handle, Color);
 }
 
 inline
 bool WinImageList::GetUseBackgroundColor()
 {
-    return ImageList_GetBkColor(_Handle) != CLR_NONE;
+    return ImageList_GetBkColor(handle) != CLR_NONE;
 }
 
 inline
@@ -685,182 +685,182 @@ void WinImageList::SetUseBackgroundColor(bool Value)
 {
     if (Value != GetUseBackgroundColor())
     {
-        ImageList_SetBkColor(_Handle, Value ? 0 : CLR_NONE);
+        ImageList_SetBkColor(handle, Value ? 0 : CLR_NONE);
     }
 }
 
 inline
 void WinImageList::Draw(WinDC* DC, int Index, int X, int Y, UINT Style)
 {
-    ImageList_Draw(_Handle, Index, DC->GetHandle(), X, Y, Style);
+    ImageList_Draw(handle, Index, DC->GetHandle(), X, Y, Style);
 }
 
 inline
 HMENU WinMenu::GetHandle()
 {
-    return _Handle;
+    return handle;
 }
 
 inline
 int WinMenu::GetCount()
 {
-    return _MenuItems.size();
+    return menItems.size();
 }
 
 inline
 WinMenuItem* WinMenu::GetItem(int Index)
 {
-    return _MenuItems[Index];
+    return menItems[Index];
 }
 
 inline
 bool WinMenu::GetAssociated()
 {
-    return _Associated;
+    return isAssociated;
 }
 
 inline
 WinMenuItem* WinMenu::GetAssociatedMenuItem()
 {
-    return _AssociatedMenuItem;
+    return associatedMenuItems;
 }
 
 inline
 WinMenuItem* WinMenu::Append()
 {
-    return Insert(_MenuItems.size());
+    return Insert(menItems.size());
 }
 
 inline
 WinMenuItemList::iterator WinMenu::begin()
 {
-    return _MenuItems.begin();
+    return menItems.begin();
 }
 
 inline
 WinMenuItemList::iterator WinMenu::end()
 {
-    return _MenuItems.end();
+    return menItems.end();
 }
 
 inline
 WinMenu* WinMenuItem::GetOwner()
 {
-    return _Owner;
+    return owner;
 }
 
 inline
 bool WinMenuItem::GetChecked()
 {
-    return _Checked;
+    return isChecked;
 }
 
 inline
 bool WinMenuItem::GetSeparator()
 {
-    return _Separator;
+    return isSeparator;
 }
 
 inline
 void WinMenuItem::SetSeparator(bool Value)
 {
-    _Separator = Value;
+    isSeparator = Value;
     RefreshProperties();
 }
 
 inline
 bool WinMenuItem::GetRadioCheck()
 {
-    return _RadioCheck;
+    return isRadioCheck;
 }
 
 inline
 void WinMenuItem::SetRadioCheck(bool Value)
 {
-    _RadioCheck = Value;
+    isRadioCheck = Value;
     RefreshProperties();
 }
 
 inline
 int WinMenuItem::GetRadioGroup()
 {
-    return _RadioGroup;
+    return radioGroup;
 }
 
 inline
 void WinMenuItem::SetRadioGroup(int Value)
 {
-    _RadioGroup = Value;
+    radioGroup = Value;
     RefreshProperties();
 }
 
 inline
 bool WinMenuItem::GetEnabled()
 {
-    return _Enabled;
+    return isEnabled;
 }
 
 inline
 void WinMenuItem::SetEnabled(bool Value)
 {
-    _Enabled = Value;
+    isEnabled = Value;
     RefreshProperties();
 }
 
 inline
 bool WinMenuItem::GetHighlighted()
 {
-    return _Highlighted;
+    return isHighlighted;
 }
 
 inline
 void WinMenuItem::SetHighlighted(bool Value)
 {
-    _Highlighted = Value;
+    isHighlighted = Value;
     RefreshProperties();
 }
 
 inline
 std::wstring WinMenuItem::GetText()
 {
-    return _Text;
+    return text;
 }
 
 inline
 void WinMenuItem::SetText(const std::wstring& Text)
 {
-    _Text = Text;
+    text = Text;
     RefreshProperties();
 }
 
 inline
 WinBitmap::Ptr WinMenuItem::GetCheckedBitmap()
 {
-    return _CheckedBitmap;
+    return checkedBitmap;
 }
 
 inline
 void WinMenuItem::SetCheckedBitmap(WinBitmap::Ptr Bitmap)
 {
-    _CheckedBitmap = CheckBitmap(Bitmap);
+    checkedBitmap = CheckBitmap(Bitmap);
     RefreshProperties();
 }
 
 inline
 WinBitmap::Ptr WinMenuItem::GetUncheckedBitmap()
 {
-    return _UncheckedBitmap;
+    return uncheckedBitmap;
 }
 
 inline
 void WinMenuItem::SetUncheckedBitmap(WinBitmap::Ptr Bitmap)
 {
-    _UncheckedBitmap = CheckBitmap(Bitmap);
+    uncheckedBitmap = CheckBitmap(Bitmap);
     RefreshProperties();
 }
 
 inline
 WinPopupMenu* WinMenuItem::GetSubMenu()
 {
-    return _SubMenu;
+    return subMenu;
 }

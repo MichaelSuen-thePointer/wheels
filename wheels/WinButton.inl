@@ -1,12 +1,12 @@
 inline
 bool WinCustomChecked::GetChecked()
 {
-	return SendMessageW(_Handle, BM_GETCHECK, 0, 0) == BST_CHECKED;
+	return SendMessageW(handle, BM_GETCHECK, 0, 0) == BST_CHECKED;
 }
 inline
 void WinCustomChecked::SetChecked(bool Value)
 {
-	SendMessageW(_Handle, BM_SETCHECK, (Value ? BST_CHECKED : BST_UNCHECKED), 0);
+	SendMessageW(handle, BM_SETCHECK, (Value ? BST_CHECKED : BST_UNCHECKED), 0);
 }
 inline
 bool WinCustomChecked::GetLeftText()
@@ -31,10 +31,10 @@ void WinCustomChecked::SetPushLike(bool Value)
 inline
 int WinRadio::GetGroupNumber()
 {
-	return _GroupNumber;
+	return groupNumber;
 }
 inline
 void WinRadio::SetGroupNumber(int Value)
 {
-	_GroupNumber = Value;
+	groupNumber = Value;
 }
